@@ -1,4 +1,4 @@
-﻿Function Get-TaskSchedulerEvent {
+Function Get-TaskSchedulerEvent {
     <#
         .Synopsis
         Fetches events matching given IDs from the Task Scheduler event log.
