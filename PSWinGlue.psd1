@@ -1,11 +1,11 @@
 #
-# Module manifest for module 'WinGlue'
+# Module manifest for module 'PSWinGlue'
 #
 
 @{
 
 # Script module or binary module file associated with this manifest.
-ModuleToProcess = 'WinGlue.psm1'
+ModuleToProcess = 'PSWinGlue.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.2'
