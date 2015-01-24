@@ -23,11 +23,6 @@ Function Get-InstalledPrograms {
         $UninstKeys += Get-ItemProperty $Wow6432RegPath
     }
 
-    # Define the default display information to be used for our custom object
-    $defaultDisplaySet = 'Name', 'Publisher', 'Version'
-    $defaultDisplayPropertySet = New-Object System.Management.Automation.PSPropertySet('DefaultDisplayPropertySet', [string[]]$defaultDisplaySet)
-    $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]@($defaultDisplayPropertySet)
-
     # Parse all returned installs and add them to an array
     $InstProgs = @()
     foreach  ($Prog in $UninstKeys) {
@@ -42,7 +37,7 @@ Function Get-InstalledPrograms {
                 Location = $Prog.InstallLocation
                 Uninstall = $Prog.UninstallString
             }
-            $ProgInfo | Add-Member MemberSet PSStandardMembers $PSStandardMembers
+            $ProgInfo.PSTypeNames.Add('PSWinGlue.Programs')
             $InstProgs += $ProgInfo
         }
     }
