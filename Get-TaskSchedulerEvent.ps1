@@ -18,6 +18,7 @@
         http://technet.microsoft.com/en-us/library/dd363729%28v=ws.10%29.aspx
 
     #>
+    [CmdletBinding()]
     Param(
         [Int32[]]$EventIds=(111,202,203,323,329,331),
         [Int32]$MaxEvents=10,
@@ -29,15 +30,29 @@
 
     # Fetch the most recent matching scheduled task event
     Write-Verbose 'Fetching matching task scheduler events...'
-    $Event = Get-WinEvent -FilterHashTable @{ LogName = $LogName; ID = $EventIds } -MaxEvents $MaxEvents
+    $Events = @()
+    $Events += Get-WinEvent -FilterHashTable @{ LogName = $LogName; ID = $EventIds } -MaxEvents $MaxEvents
 
-    # Exit if the event matches any defined ignored tasks
-    Write-Verbose 'Filtering out any ignored task events...'
-    $EventXml = [xml]$Event.ToXml()
-    $EventTaskName = $EventXml.Event.EventData.Data | ? {$_.Name -eq 'TaskName'}
-    if ($EventTaskName.'#text' -in $IgnoredTasks) {
-        return
+    # If we have an IgnoredTasks filter then apply it
+    if ($IgnoredTasks) {
+        Write-Verbose 'Filtering out any ignored task events...'
+        $FilteredEvents = @()
+        foreach ($Event in $Events) {
+            $EventXml = [xml]$Event.ToXml()
+            $EventTaskName = $EventXml.Event.EventData.Data | ? {$_.Name -eq 'TaskName'}
+            if ($EventTaskName.'#text' -notin $IgnoredTasks) {
+                $FilteredEvents += $Event
+            }
+        }
+        $Events = $FilteredEvents
+    }
+
+    # Return the results in the appropriate form
+    if ($Events.Count -ge 2) {
+        return $Events
+    } elseif ($Events.Count -eq 1) {
+        return $Events[0]
     } else {
-        return $Event
+        Write-Warning "No events returned for the given filter."
     }
 }
