@@ -26,12 +26,12 @@
     )
 
     $ErrorActionPreference = 'Stop'
-    $LogName = 'Microsoft-Windows-TaskScheduler/Operational'
+    $ProviderName = 'Microsoft-Windows-TaskScheduler'
 
     # Fetch the most recent matching scheduled task event
     Write-Verbose 'Fetching matching task scheduler events...'
     $Events = @()
-    $Events += Get-WinEvent -FilterHashTable @{ LogName = $LogName; ID = $EventIds } -MaxEvents $MaxEvents
+    $Events += Get-WinEvent -FilterHashTable @{ ProviderName = $ProviderName; ID = $EventIds } -MaxEvents $MaxEvents
 
     # If we have an IgnoredTasks filter then apply it
     if ($IgnoredTasks) {

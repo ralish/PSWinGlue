@@ -8,7 +8,7 @@
 ModuleToProcess = 'PSWinGlue.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2.1'
+ModuleVersion = '0.2.2'
 
 # ID used to uniquely identify this module
 GUID = '1cf38716-9a00-46c5-b9f7-2e50a51cf8b1'
