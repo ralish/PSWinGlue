@@ -25,7 +25,7 @@
     )
 
     $ErrorActionPreference = 'Stop'
-    $LogName = 'Microsoft-Windows-TaskScheduler/Operational',
+    $LogName = 'Microsoft-Windows-TaskScheduler/Operational'
 
     # Fetch the most recent matching scheduled task event
     Write-Verbose 'Fetching matching task scheduler events...'
