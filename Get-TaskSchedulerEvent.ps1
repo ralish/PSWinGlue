@@ -22,7 +22,8 @@
     Param(
         [Int32[]]$EventIds=(111,202,203,323,329,331),
         [Int32]$MaxEvents=10,
-        [String[]]$IgnoredTasks=('\Microsoft\Windows\Shell\CreateObjectTask')
+        [String[]]$IgnoredTasks=('\Microsoft\Windows\NetCfg\BindingWorkItemQueueHandler',
+                                 '\Microsoft\Windows\Shell\CreateObjectTask')
     )
 
     $ErrorActionPreference = 'Stop'
