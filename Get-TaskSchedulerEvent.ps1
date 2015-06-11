@@ -40,9 +40,20 @@
         $FilteredEvents = @()
         foreach ($Event in $Events) {
             $EventXml = [xml]$Event.ToXml()
-            $EventTaskName = $EventXml.Event.EventData.Data | ? {$_.Name -eq 'TaskName'}
-            if ($EventTaskName.'#text' -notin $IgnoredTasks) {
+            $EventData = $EventXml.Event.EventData.Data
+
+            # Check every XML child element of the event's Data element
+            for ($i = 0; $i -lt $EventData.Count -and !$IgnoreEvent; $i++) {
+                if ($EventData[$i].'#text' -in $IgnoredTasks) {
+                    $IgnoreEvent = $true
+                }
+            }
+
+            # Either add the event or ignore it subject to earlier inspection
+            if (!$IgnoreEvent) {
                 $FilteredEvents += $Event
+            } else {
+                Remove-Variable IgnoreEvent
             }
         }
         $Events = $FilteredEvents
