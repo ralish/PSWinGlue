@@ -62,7 +62,7 @@ FormatsToProcess = @('PSWinGlue.ps1xml')
 # NestedModules = @()
 
 # Functions to export from this module
-FunctionsToExport = 'Get-InstalledPrograms', 'Get-PendingReboot', 'Get-TaskSchedulerEvent'
+FunctionsToExport = 'Get-InstalledPrograms', 'Get-PendingReboot', 'Get-TaskSchedulerEvent', 'Update-GitRepository'
 
 # Cmdlets to export from this module
 # CmdletsToExport = '*'
