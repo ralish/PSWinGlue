@@ -31,7 +31,7 @@ Function Update-GitRepository {
     Function Test-GitRepository {
         Write-Verbose 'Testing current directory is a Git repository...'
 
-        git rev-parse --git-dir 2>&1
+        git rev-parse --git-dir 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) {
             Write-Error 'The current directory is not part of a Git repository.'
         }
@@ -53,10 +53,14 @@ Function Update-GitRepository {
             Write-Error "Something went wrong updating the Git index with all changes."
         }
 
-        $GitCommitDate = Get-Date -UFormat "%d/%m/%Y"
-        git commit -m "Changes for $GitCommitDate"
+        # Check if the index is dirty indicating we have something to commit
+        git diff-index --quiet --cached HEAD
         if ($LASTEXITCODE -ne 0) {
-            Write-Error "Something went wrong committing all changes in the Git index."
+            $GitCommitDate = Get-Date -UFormat "%d/%m/%Y"
+            git commit -m "Changes for $GitCommitDate"
+            if ($LASTEXITCODE -ne 0) {
+                Write-Error "Something went wrong committing all changes in the Git index."
+            }
         }
 
         git pull
