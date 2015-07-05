@@ -25,7 +25,14 @@ Function Update-GitRepository {
         $Env:Path="$Env:Path;$GitPath\bin"
 
         # Setup the HOME environment variable needed by SSH (this caused some serious pain)
-        $Env:HOME = $Env:USERPROFILE
+        #
+        # More pain: if running as a Scheduled Task the user profile of the running account
+        # may not yet be loaded on Windows 8 or Server 2012 and newer. As a result, the
+        # USERPROFILE environment variable will point to the Default user profile. We can
+        # seemingly work around this by using GetFolderPath() from the Environment class.
+        #
+        # See: https://support.microsoft.com/en-us/kb/2968540
+        $Env:HOME = [Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
     }
 
     Function Test-GitRepository {
