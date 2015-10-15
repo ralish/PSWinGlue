@@ -1,8 +1,9 @@
 Function Update-GitRepository {
     [CmdletBinding()]
 
-    # The path to the Registry key containing the Git installation details
-    $GitInstallRegPath = 'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1'
+    # The path to the Registry keys containing potential Git installation details
+    $GitInstallRegPaths = @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1', # Native bitness
+                            'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1') # x86 on x64
     # The name of the Registry property that gives the installation location
     $GitInstallDirProp = 'InstallLocation'
 
@@ -12,13 +13,19 @@ Function Update-GitRepository {
     Function Test-GitInstalled {
         Write-Verbose 'Testing Git is installed...'
 
-        if (!(Test-Path $GitInstallRegPath -PathType Container)) {
-            Write-Error 'Git does not appear to be installed on this system.'
-        } else {
-            $GitPath = (Get-ItemProperty -Path $GitInstallRegPath).$GitInstallDirProp
-            if (!(Test-Path $GitPath -PathType Container)) {
-                Write-Error 'The Git installation on this system appears to be damaged.'
+        foreach ($GitInstallRegPath in $GitInstallRegPaths) {
+            if (Test-Path $GitInstallRegPath -PathType Container) {
+                $GitPath = (Get-ItemProperty -Path $GitInstallRegPath).$GitInstallDirProp
+                break
             }
+        }
+
+        if (!$GitPath) {
+            Write-Error 'Git does not appear to be installed on this system.'
+        }
+
+        if (!(Test-Path $GitPath -PathType Container)) {
+            Write-Error 'The Git installation on this system appears to be damaged.'
         }
 
         # Amend the PATH variable to include the full set of Git utilities
