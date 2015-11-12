@@ -2,7 +2,9 @@ Function Update-GitRepository {
     [CmdletBinding()]
 
     # The path to the Registry keys containing potential Git installation details
-    $GitInstallRegPaths = @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1', # Native bitness
+    $GitInstallRegPaths = @('HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1', # Native bitness
+                            'HKCU:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1', # x86 on x64
+                            'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1', # Native bitness
                             'HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Git_is1') # x86 on x64
     # The name of the Registry property that gives the installation location
     $GitInstallDirProp = 'InstallLocation'
