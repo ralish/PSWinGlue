@@ -22,7 +22,9 @@
     Param(
         [Int32[]]$EventIds=(111,202,203,323,329,331),
         [Int32]$MaxEvents=10,
-        [String[]]$IgnoredTasks=('\Microsoft\Windows\NetCfg\BindingWorkItemQueueHandler',
+        [String[]]$IgnoredTasks=('\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319',
+                                 '\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319 64',
+                                 '\Microsoft\Windows\NetCfg\BindingWorkItemQueueHandler',
                                  '\Microsoft\Windows\Shell\CreateObjectTask')
     )
 
