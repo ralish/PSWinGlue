@@ -24,5 +24,5 @@ if (Test-Path -Path $IressInstallRegPath -PathType Container) {
 $IressExcelAddins = Get-ChildItem -Path $IressExcelAddinsPath
 foreach ($Addin in $IressExcelAddins) {
     Write-Host ('Installing Excel add-in: ' + $Addin.Name)
-    & (Join-Path $PSScriptRoot 'Install-ExcelAddin') -AddinPath $Addin.FullName @PSBoundParameters
+    & (Join-Path $PSScriptRoot 'Install-ExcelAddin') -AddinPath $Addin.FullName -NoCopy @PSBoundParameters
 }
