@@ -3,7 +3,9 @@ Param(
     [Parameter(Position=0,Mandatory=$true)]
         [String]$AddinPath,
     [Parameter(Mandatory=$false)]
-        [Switch]$Reinstall
+        [Switch]$Reinstall,
+    [Parameter(Mandatory=$false)]
+        [Switch]$NoCopy
 )
 
 # Ensure that any errors we receive are considered fatal
@@ -37,9 +39,12 @@ try {
         if (!(Test-Path -Path $ExcelAddinsPath -PathType Container)) {
             New-Item -Path $ExcelAddinsPath -ItemType Directory
         }
-        Copy-Item -Path $Addin.FullName -Destination $ExcelAddinsPath -Force
-        $Addin = Get-ChildItem -Path (Join-Path $ExcelAddinsPath $Addin.Name)
-        $Addin.IsReadOnly = $true
+
+        if (!$NoCopy) {
+            Copy-Item -Path $Addin.FullName -Destination $ExcelAddinsPath -Force
+            $Addin = Get-ChildItem -Path (Join-Path $ExcelAddinsPath $Addin.Name)
+            $Addin.IsReadOnly = $true
+        }
 
         $NewAddin = $ExcelAddins.Add($Addin.FullName, $false)
         $NewAddin.Installed = $true
