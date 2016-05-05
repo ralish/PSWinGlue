@@ -1,4 +1,4 @@
-﻿Function Get-InstalledPrograms {
+Function Get-InstalledPrograms {
     <#
         .Synopsis
         Fetches the list of installed software on a system via the Windows Registry.

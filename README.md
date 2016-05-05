@@ -1,4 +1,4 @@
-﻿PSWinGlue
+PSWinGlue
 ============
 
 PowerShell Module with assorted random functions I find useful.
