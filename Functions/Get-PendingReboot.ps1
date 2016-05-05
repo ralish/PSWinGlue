@@ -6,15 +6,18 @@ Function Get-PendingReboot
 
 .DESCRIPTION
     This function will query the registry on a local or remote computer and determine if the
-    system is pending a reboot, from either Microsoft Patching or a Software Installation.
-    For Windows 2008+ the function will query the CBS registry key as another factor in determining
-    pending reboot state.  "PendingFileRenameOperations" and "Auto Update\RebootRequired" are observed
-    as being consistant across Windows Server 2003 & 2008.
+    system is pending a reboot, from Microsoft updates, Configuration Manager Client SDK, Pending Computer
+    Rename, Domain Join or Pending File Rename Operations. For Windows 2008+ the function will query the
+    CBS registry key as another factor in determining pending reboot state.  "PendingFileRenameOperations"
+    and "Auto Update\RebootRequired" are observed as being consistant across Windows Server 2003 & 2008.
 
-    CBServicing = Component Based Servicing (Windows 2008)
-    WindowsUpdate = Windows Update / Auto Update (Windows 2003 / 2008)
+    CBServicing = Component Based Servicing (Windows 2008+)
+    WindowsUpdate = Windows Update / Auto Update (Windows 2003+)
     CCMClientSDK = SCCM 2012 Clients only (DetermineIfRebootPending method) otherwise $null value
-    PendFileRename = PendingFileRenameOperations (Windows 2003 / 2008)
+    PendComputerRename = Detects either a computer rename or domain join operation (Windows 2003+)
+    PendFileRename = PendingFileRenameOperations (Windows 2003+)
+    PendFileRenVal = PendingFilerenameOperations registry value; used to filter if need be, some Anti-
+                     Virus leverage this key for def/dat removal, giving a false positive PendingReboot
 
 .PARAMETER ComputerName
     A single Computer or an array of computer names.  The default is localhost ($env:COMPUTERNAME).
@@ -39,13 +42,14 @@ Function Get-PendingReboot
 .EXAMPLE
     PS C:\> Get-PendingReboot
 
-    Computer       : WKS01
-    CBServicing    : False
-    WindowsUpdate  : True
-    CCMClient      : False
-    PendFileRename : False
-    PendFileRenVal :
-    RebootPending  : True
+    Computer           : WKS01
+    CBServicing        : False
+    WindowsUpdate      : True
+    CCMClient          : False
+    PendComputerRename : False
+    PendFileRename     : False
+    PendFileRenVal     :
+    RebootPending      : True
 
     This example will query the local machine for pending reboot information.
 
@@ -69,16 +73,21 @@ Function Get-PendingReboot
 
 .NOTES
     Author:  Brian Wilhite
-    Email:   bwilhite1@carolina.rr.com
-    Date:    08/29/2012
-    PSVer:   2.0/3.0
-    Updated: 05/30/2013
-    UpdNote: Added CCMClient property - Used with SCCM 2012 Clients only
+    Email:   bcwilhite (at) live.com
+    Date:    29AUG2012
+    PSVer:   2.0/3.0/4.0/5.0
+    Updated: 27JUL2015
+    UpdNote: Added Domain Join detection to PendComputerRename, does not detect Workgroup Join/Change
+             Fixed Bug where a computer rename was not detected in 2008 R2 and above if a domain join occurred at the same time.
+             Fixed Bug where the CBServicing wasn't detected on Windows 10 and/or Windows Server Technical Preview (2016)
+             Added CCMClient property - Used with SCCM 2012 Clients only
              Added ValueFromPipelineByPropertyName=$true to the ComputerName Parameter
              Removed $Data variable from the PSObject - it is not needed
              Bug with the way CCMClientSDK returned null value if it was false
              Removed unneeded variables
              Added PendFileRenVal - Contents of the PendingFileRenameOperations Reg Entry
+             Removed .Net Registry connection, replaced with WMI StdRegProv
+             Added ComputerPendingRename
 #>
 
 [CmdletBinding()]
@@ -89,135 +98,123 @@ param(
     [String]$ErrorLog
     )
 
-Begin
-    {
-        # Adjusting ErrorActionPreference to stop on all errors, since using [Microsoft.Win32.RegistryKey]
-        # does not have a native ErrorAction Parameter, this may need to be changed if used within another
-        # function.
-        $TempErrAct = $ErrorActionPreference
-        $ErrorActionPreference = "Stop"
-    }#End Begin Script Block
-Process
-    {
-        Foreach ($Computer in $ComputerName)
-            {
-                Try
-                    {
-                        # Setting pending values to false to cut down on the number of else statements
-                        $PendFileRename,$Pending,$SCCM = $false,$false,$false
+Begin {  }## End Begin Script Block
+Process {
+  Foreach ($Computer in $ComputerName) {
+    Try {
+        ## Setting pending values to false to cut down on the number of else statements
+        $CompPendRen,$PendFileRename,$Pending,$SCCM = $false,$false,$false,$false
 
-                        # Setting CBSRebootPend to null since not all versions of Windows has this value
-                        $CBSRebootPend = $null
+        ## Setting CBSRebootPend to null since not all versions of Windows has this value
+        $CBSRebootPend = $null
 
-                        # Querying WMI for build version
-                        $WMI_OS = Get-WmiObject -Class Win32_OperatingSystem -Property BuildNumber, CSName -ComputerName $Computer
+        ## Querying WMI for build version
+        $WMI_OS = Get-WmiObject -Class Win32_OperatingSystem -Property BuildNumber, CSName -ComputerName $Computer -ErrorAction Stop
 
-                        # Making registry connection to the local/remote computer
-                        $RegCon = [Microsoft.Win32.RegistryKey]::OpenRemoteBaseKey([Microsoft.Win32.RegistryHive]"LocalMachine",$Computer)
+        ## Making registry connection to the local/remote computer
+        $HKLM = [UInt32] "0x80000002"
+        $WMI_Reg = [WMIClass] "\\$Computer\root\default:StdRegProv"
 
-                        # If Vista/2008 & Above query the CBS Reg Key
-                        If ($WMI_OS.BuildNumber -ge 6001)
-                            {
-                                $RegSubKeysCBS = $RegCon.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\").GetSubKeyNames()
-                                $CBSRebootPend = $RegSubKeysCBS -contains "RebootPending"
+        ## If Vista/2008 & Above query the CBS Reg Key
+        If ([Int32]$WMI_OS.BuildNumber -ge 6001) {
+            $RegSubKeysCBS = $WMI_Reg.EnumKey($HKLM,"SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\")
+            $CBSRebootPend = $RegSubKeysCBS.sNames -contains "RebootPending"
+        }
 
-                            }#End If ($WMI_OS.BuildNumber -ge 6001)
+        ## Query WUAU from the registry
+        $RegWUAURebootReq = $WMI_Reg.EnumKey($HKLM,"SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\")
+        $WUAURebootReq = $RegWUAURebootReq.sNames -contains "RebootRequired"
 
-                        # Query WUAU from the registry
-                        $RegWUAU = $RegCon.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\")
-                        $RegWUAURebootReq = $RegWUAU.GetSubKeyNames()
-                        $WUAURebootReq = $RegWUAURebootReq -contains "RebootRequired"
+        ## Query PendingFileRenameOperations from the registry
+        $RegSubKeySM = $WMI_Reg.GetMultiStringValue($HKLM,"SYSTEM\CurrentControlSet\Control\Session Manager\","PendingFileRenameOperations")
+        $RegValuePFRO = $RegSubKeySM.sValue
 
-                        # Query PendingFileRenameOperations from the registry
-                        $RegSubKeySM = $RegCon.OpenSubKey("SYSTEM\CurrentControlSet\Control\Session Manager\")
-                        $RegValuePFRO = $RegSubKeySM.GetValue("PendingFileRenameOperations",$null)
+        ## Query JoinDomain key from the registry - These keys are present if pending a reboot from a domain join operation
+        $Netlogon = $WMI_Reg.EnumKey($HKLM,"SYSTEM\CurrentControlSet\Services\Netlogon").sNames
+        $PendDomJoin = ($Netlogon -contains 'JoinDomain') -or ($Netlogon -contains 'AvoidSpnSet')
 
-                        # Closing registry connection
-                        $RegCon.Close()
+        ## Query ComputerName and ActiveComputerName from the registry
+        $ActCompNm = $WMI_Reg.GetStringValue($HKLM,"SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName\","ComputerName")
+        $CompNm = $WMI_Reg.GetStringValue($HKLM,"SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName\","ComputerName")
 
-                        # If PendingFileRenameOperations has a value set $RegValuePFRO variable to $true
-                        If ($RegValuePFRO)
-                            {
-                                $PendFileRename = $true
+        If (($ActCompNm -ne $CompNm) -or $PendDomJoin) {
+            $CompPendRen = $true
+        }
 
-                            }#End If ($RegValuePFRO)
+        ## If PendingFileRenameOperations has a value set $RegValuePFRO variable to $true
+        If ($RegValuePFRO) {
+            $PendFileRename = $true
+        }
 
-                        # Determine SCCM 2012 Client Reboot Pending Status
-                        # To avoid nested 'if' statements and unneeded WMI calls to determine if the CCM_ClientUtilities class exist, setting EA = 0
-                        $CCMClientSDK = $null
-                        $CCMSplat = @{
-                            NameSpace='ROOT\ccm\ClientSDK'
-                            Class='CCM_ClientUtilities'
-                            Name='DetermineIfRebootPending'
-                            ComputerName=$Computer
-                            ErrorAction='SilentlyContinue'
-                            }
-                        $CCMClientSDK = Invoke-WmiMethod @CCMSplat
-                        If ($CCMClientSDK)
-                            {
-                                If ($CCMClientSDK.ReturnValue -ne 0)
-                                    {
-                                        Write-Warning "Error: DetermineIfRebootPending returned error code $($CCMClientSDK.ReturnValue)"
+        ## Determine SCCM 2012 Client Reboot Pending Status
+        ## To avoid nested 'if' statements and unneeded WMI calls to determine if the CCM_ClientUtilities class exist, setting EA = 0
+        $CCMClientSDK = $null
+        $CCMSplat = @{
+            NameSpace='ROOT\ccm\ClientSDK'
+            Class='CCM_ClientUtilities'
+            Name='DetermineIfRebootPending'
+            ComputerName=$Computer
+            ErrorAction='Stop'
+        }
+        ## Try CCMClientSDK
+        Try {
+            $CCMClientSDK = Invoke-WmiMethod @CCMSplat
+        } Catch [System.UnauthorizedAccessException] {
+            $CcmStatus = Get-Service -Name CcmExec -ComputerName $Computer -ErrorAction SilentlyContinue
+            If ($CcmStatus.Status -ne 'Running') {
+                Write-Warning "$Computer`: Error - CcmExec service is not running."
+                $CCMClientSDK = $null
+            }
+        } Catch {
+            $CCMClientSDK = $null
+        }
 
-                                    }#End If ($CCMClientSDK -and $CCMClientSDK.ReturnValue -ne 0)
+        If ($CCMClientSDK) {
+            If ($CCMClientSDK.ReturnValue -ne 0) {
+                Write-Warning "Error: DetermineIfRebootPending returned error code $($CCMClientSDK.ReturnValue)"
+            }
+            If ($CCMClientSDK.IsHardRebootPending -or $CCMClientSDK.RebootPending) {
+                $SCCM = $true
+            }
+        }
 
-                                If ($CCMClientSDK.IsHardRebootPending -or $CCMClientSDK.RebootPending)
-                                    {
-                                        $SCCM = $true
+        Else {
+            $SCCM = $null
+        }
 
-                                    }#End If ($CCMClientSDK.IsHardRebootPending -or $CCMClientSDK.RebootPending)
+        ## Creating Custom PSObject and Select-Object Splat
+        $SelectSplat = @{
+            Property=(
+                'Computer',
+                'CBServicing',
+                'WindowsUpdate',
+                'CCMClientSDK',
+                'PendComputerRename',
+                'PendFileRename',
+                'PendFileRenVal',
+                'RebootPending'
+            )}
+        New-Object -TypeName PSObject -Property @{
+            Computer=$WMI_OS.CSName
+            CBServicing=$CBSRebootPend
+            WindowsUpdate=$WUAURebootReq
+            CCMClientSDK=$SCCM
+            PendComputerRename=$CompPendRen
+            PendFileRename=$PendFileRename
+            PendFileRenVal=$RegValuePFRO
+            RebootPending=($CompPendRen -or $CBSRebootPend -or $WUAURebootReq -or $SCCM -or $PendFileRename)
+        } | Select-Object @SelectSplat
 
-                            }#End If ($CCMClientSDK)
-                        Else
-                            {
-                                $SCCM = $null
+    } Catch {
+        Write-Warning "$Computer`: $_"
+        ## If $ErrorLog, log the file to a user specified location/path
+        If ($ErrorLog) {
+            Out-File -InputObject "$Computer`,$_" -FilePath $ErrorLog -Append
+        }
+    }
+  }## End Foreach ($Computer in $ComputerName)
+}## End Process
 
-                            }
+End {  }## End End
 
-                        # If any of the variables are true, set $Pending variable to $true
-                        If ($CBSRebootPend -or $WUAURebootReq -or $SCCM -or $PendFileRename)
-                            {
-                                $Pending = $true
-
-                            }#End If ($CBS -or $WUAU -or $PendFileRename)
-
-                        # Creating Custom PSObject and Select-Object Splat
-                        $SelectSplat = @{
-                            Property=('Computer','CBServicing','WindowsUpdate','CCMClientSDK','PendFileRename','PendFileRenVal','RebootPending')
-                            }
-                        New-Object -TypeName PSObject -Property @{
-                                Computer=$WMI_OS.CSName
-                                CBServicing=$CBSRebootPend
-                                WindowsUpdate=$WUAURebootReq
-                                CCMClientSDK=$SCCM
-                                PendFileRename=$PendFileRename
-                                PendFileRenVal=$RegValuePFRO
-                                RebootPending=$Pending
-                                } | Select-Object @SelectSplat
-
-                    }#End Try
-
-                Catch
-                    {
-                        Write-Warning "$Computer`: $_"
-
-                        # If $ErrorLog, log the file to a user specified location/path
-                        If ($ErrorLog)
-                            {
-                                Out-File -InputObject "$Computer`,$_" -FilePath $ErrorLog -Append
-
-                            }#End If ($ErrorLog)
-
-                    }#End Catch
-
-            }#End Foreach ($Computer in $ComputerName)
-
-    }#End Process
-
-End
-    {
-        # Resetting ErrorActionPref
-        $ErrorActionPreference = $TempErrAct
-    }#End End
-
-}#End Function
+}## End Function Get-PendingReboot
