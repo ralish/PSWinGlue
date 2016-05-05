@@ -2,7 +2,7 @@
 <Configuration>
     <ViewDefinitions>
         <View>
-            <Name>WinGlue</Name>
+            <Name>PSWinGlue.Programs</Name>
             <ViewSelectedBy>
                 <TypeName>PSWinGlue.Programs</TypeName>
             </ViewSelectedBy>
