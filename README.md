@@ -1,12 +1,10 @@
 PSWinGlue
-============
+=========
 
-PowerShell Module with assorted random functions I find useful.
+A PowerShell module consisting of an assortment of useful scripts and functions.
 
-In perpetual early development.
+This module has no formal release process and should be considered to be in perpetual ad-hoc development.
 
+## Requirements
 
-Requirements
-============
-
- * PowerShell 3.0 or newer
+- PowerShell 3.0 (or newer)
