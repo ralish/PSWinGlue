@@ -5,7 +5,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-ModuleToProcess = 'PSWinGlue.psm1'
+RootModule = 'PSWinGlue.psm1'
 
 # Version number of this module.
 ModuleVersion = '0.2.2'
@@ -20,10 +20,10 @@ Author = 'Samuel Leslie'
 # CompanyName = ''
 
 # Copyright statement for this module
-# Copyright = ''
+Copyright = '(c) 2016 Samuel Leslie. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'PowerShell Module with assorted random functions I find useful'
+Description = 'An assortment of useful PowerShell scripts & functions'
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '3.0'
@@ -62,7 +62,7 @@ FormatsToProcess = @('PSWinGlue.ps1xml')
 # NestedModules = @()
 
 # Functions to export from this module
-FunctionsToExport = 'Get-InstalledPrograms', 'Get-PendingReboot', 'Get-TaskSchedulerEvent', 'Update-GitRepository'
+FunctionsToExport = '*'
 
 # Cmdlets to export from this module
 # CmdletsToExport = '*'
@@ -73,14 +73,38 @@ FunctionsToExport = 'Get-InstalledPrograms', 'Get-PendingReboot', 'Get-TaskSched
 # Aliases to export from this module
 # AliasesToExport = '*'
 
+# DSC resources to export from this module
+# DscResourcesToExport = @()
+
 # List of all modules packaged with this module
 # ModuleList = @()
 
 # List of all files packaged with this module
 # FileList = @()
 
-# Private data to pass to the module specified in RootModule/ModuleToProcess
-# PrivateData = ''
+# Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
+PrivateData = @{
+
+    PSData = @{
+
+        # Tags applied to this module. These help with module discovery in online galleries.
+        # Tags = @()
+
+        # A URL to the license for this module.
+        # LicenseUri = ''
+
+        # A URL to the main website for this project.
+        ProjectUri = 'https://github.com/ralish/PSWinGlue'
+
+        # A URL to an icon representing this module.
+        # IconUri = ''
+
+        # ReleaseNotes of this module
+        # ReleaseNotes = ''
+
+    } # End of PSData hashtable
+
+} # End of PrivateData hashtable
 
 # HelpInfo URI of this module
 # HelpInfoURI = ''
