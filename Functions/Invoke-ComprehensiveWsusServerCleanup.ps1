@@ -217,7 +217,7 @@ Function Invoke-WsusServerExtraCleanup {
     $UpdateScope = New-Object Microsoft.UpdateServices.Administration.UpdateScope
 
     Write-Host -ForegroundColor Green "[*] Importing update catalog..."
-    $Updates = Import-Csv (Join-Path $PSScriptRoot 'Invoke-ComprehensiveWsusServerCleanup.csv')
+    $Updates = Import-Csv (Join-Path $PSScriptRoot '..\Data\WsusUpdateCatalog.csv')
     $Categories = $Updates.Category | Sort-Object | Get-Unique
 
     if ($PSCmdlet.ParameterSetName -eq 'Exclude') {
