@@ -27,16 +27,16 @@ Function Install-Font {
         $FontItem = Get-Item -Path $FontPath
         if ($FontItem -is [IO.DirectoryInfo]) {
             if ($Recurse) {
-                $Fonts = Get-ChildItem -Path $FontItem -Include ('*.fon','*.otf','*.ttc','*.ttf') -Recurse
+                $Fonts = Get-ChildItem -Path $FontItem -Include ('*.fon', '*.otf', '*.ttc', '*.ttf') -Recurse
             } else {
-                $Fonts = Get-ChildItem -Path "$FontItem\*" -Include ('*.fon','*.otf','*.ttc','*.ttf')
+                $Fonts = Get-ChildItem -Path "$FontItem\*" -Include ('*.fon', '*.otf', '*.ttc', '*.ttf')
             }
 
             if (!$Fonts) {
                 throw ('Unable to locate any fonts in provided directory: {0}' -f $FontItem.FullName)
             }
         } elseif ($FontItem -is [IO.FileInfo]) {
-            if ($FontItem.Extension -notin ('.fon','.otf','.ttc','.ttf')) {
+            if ($FontItem.Extension -notin ('.fon', '.otf', '.ttc', '.ttf')) {
                 throw ('Provided file does not appear to be a valid font: {0}' -f $FontItem.FullName)
             }
 

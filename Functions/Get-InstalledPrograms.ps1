@@ -25,9 +25,9 @@ Function Get-InstalledPrograms {
 
     # Parse all returned installs and add them to an array
     $InstProgs = @()
-    foreach  ($Prog in $UninstKeys) {
+    foreach ($Prog in $UninstKeys) {
         # If the entry has no defined DisplayName ignore it as it's probably not useful
-        if ($Prog.DisplayName -ne $null) {
+        if ($null -ne $Prog.DisplayName) {
             $ProgInfo = [PsCustomObject]@{
                 Name = $Prog.DisplayName
                 Publisher = $Prog.Publisher

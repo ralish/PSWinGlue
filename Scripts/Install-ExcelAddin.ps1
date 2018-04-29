@@ -1,11 +1,10 @@
 [CmdletBinding()]
 Param(
-    [Parameter(Position=0,Mandatory=$true)]
-        [String]$AddinPath,
-    [Parameter(Mandatory=$false)]
-        [Switch]$Reinstall,
-    [Parameter(Mandatory=$false)]
-        [Switch]$NoCopy
+    [Parameter(Mandatory)]
+    [String]$AddinPath,
+
+    [Switch]$Reinstall,
+    [Switch]$NoCopy
 )
 
 # Ensure that any errors we receive are considered fatal
@@ -32,8 +31,8 @@ try {
 try {
     $ExcelAddins = $Excel.Addins
     # The Add() method of the AddIns interface will fail if we don't have a workbook!
-    $ExcelWorkbook = $Excel.Workbooks.Add()
-    $AddinInstalled = $ExcelAddins | ? { $_.Name -eq $Addin.Name }
+    $null = $Excel.Workbooks.Add()
+    $AddinInstalled = $ExcelAddins | Where-Object { $_.Name -eq $Addin.Name }
 
     if (!$AddinInstalled -or $Reinstall) {
         if (!(Test-Path -Path $ExcelAddinsPath -PathType Container)) {

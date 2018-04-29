@@ -56,7 +56,7 @@ Function Update-GitRepository {
     Function Test-Windows64bit {
         Write-Verbose 'Testing if we are running on 64-bit Windows...'
 
-        if ((Get-WmiObject 'Win32_OperatingSystem').OSArchitecture -ne '64-bit') {
+        if ((Get-CimInstance -ClassName 'Win32_OperatingSystem').OSArchitecture -ne '64-bit') {
             Write-Error 'We only support running on 64-bit systems. Seriously, it is time to upgrade already!'
         }
     }

@@ -15,12 +15,12 @@ Function Get-TaskSchedulerEvent {
         An array of strings specifying the task names we wish to exclude from the returned results.
         .Notes
         For more information on Task Scheduler event IDs consult the TechNet documentation at:
-        http://technet.microsoft.com/en-us/library/dd363729%28v=ws.10%29.aspx
+        https://technet.microsoft.com/en-us/library/dd363729%28v=ws.10%29.aspx
 
     #>
     [CmdletBinding()]
     Param(
-        [Int32[]]$EventIds=(111,202,203,323,329,331),
+        [Int32[]]$EventIds=(111, 202, 203, 323, 329, 331),
         [Int32]$MaxEvents=10,
         [String[]]$IgnoredTasks=('\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319',
                                  '\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319 64',

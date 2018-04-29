@@ -1,7 +1,6 @@
 [CmdletBinding()]
 Param(
-    [Parameter(Mandatory=$false)]
-        [Switch]$Reinstall
+    [Switch]$Reinstall
 )
 
 # Ensure that any errors we receive are considered fatal
