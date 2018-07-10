@@ -23,7 +23,7 @@
     # CompanyName = ''
 
     # Copyright statement for this module
-    Copyright = '(c) 2016 Samuel Leslie. All rights reserved.'
+    Copyright = '(c) Samuel Leslie. All rights reserved.'
 
     # Description of the functionality provided by this module
     Description = 'An assortment of useful PowerShell scripts & functions'
