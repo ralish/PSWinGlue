@@ -65,7 +65,14 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = @('Get-InstalledPrograms', 'Get-PendingReboot', 'Get-TaskSchedulerEvent', 'Install-Font', 'Update-GitRepository')
+    FunctionsToExport = @(
+        'Get-InstalledPrograms',
+        'Get-PendingReboot',
+        'Get-TaskSchedulerEvent',
+        'Install-Font',
+        'Remove-AlternateDataStream',
+        'Update-GitRepository'
+    )
 
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport = @()
