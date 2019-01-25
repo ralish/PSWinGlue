@@ -99,7 +99,7 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @('scripts')
+            Tags = @('scripts', 'sysadmin')
 
             # A URL to the license for this module.
             LicenseUri = 'https://github.com/ralish/PSWinGlue/blob/stable/LICENSE'
