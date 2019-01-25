@@ -68,7 +68,6 @@
     FunctionsToExport = @(
         'Get-ControlledGpoStatus',
         'Get-InstalledPrograms',
-        'Get-PendingReboot',
         'Get-TaskSchedulerEvent',
         'Install-Font',
         'Register-MicrosoftUpdate',
