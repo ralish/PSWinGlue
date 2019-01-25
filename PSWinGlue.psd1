@@ -71,6 +71,7 @@
         'Get-PendingReboot',
         'Get-TaskSchedulerEvent',
         'Install-Font',
+        'Register-MicrosoftUpdate',
         'Remove-AlternateDataStream',
         'Update-GitRepository'
     )
