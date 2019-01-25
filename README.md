@@ -1,7 +1,7 @@
 PSWinGlue
 =========
 
-A PowerShell module consisting of an assortment of useful scripts and functions.
+A PowerShell module consisting of an assortment of useful scripts.
 
 Requirements
 ------------

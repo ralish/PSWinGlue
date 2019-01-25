@@ -26,7 +26,7 @@
     Copyright = '(c) Samuel Leslie. All rights reserved.'
 
     # Description of the functionality provided by this module
-    Description = 'An assortment of useful PowerShell scripts & functions'
+    Description = 'An assortment of useful PowerShell scripts'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '3.0'
