@@ -72,6 +72,7 @@
         'Install-Font',
         'Register-MicrosoftUpdate',
         'Remove-AlternateDataStream',
+        'Uninstall-ObsoleteModule',
         'Update-GitRepository'
     )
 
