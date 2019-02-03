@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.4.2
+------
+
+- `Uninstall-ObsoleteModule`: Fixed incorrect object type under strict mode in certain scenarios
+
 v0.4.1
 ------
 
