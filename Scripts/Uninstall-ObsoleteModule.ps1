@@ -20,7 +20,7 @@ foreach ($Module in $InstalledModules) {
         continue
     }
 
-    $AllVersions = Get-InstalledModule -AllVersions -Name $Module.Name
+    [PSCustomObject[]]$AllVersions = Get-InstalledModule -AllVersions -Name $Module.Name
     if ($AllVersions.Count -gt 1) {
         Write-Verbose -Message ('Uninstalling {0} version(s): {1}' -f $Module.Name, [String]::Join(', ', $AllVersions.Version -ne $Module.Version))
         if ($PSCmdlet.ShouldProcess($Module.Name, 'Uninstall obsolete versions')) {
