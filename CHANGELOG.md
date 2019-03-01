@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.4.3
+------
+
+- `Install-Font`: Overhauled the script and now supports per-user fonts in Windows 10 1809 (or newer)
+
 v0.4.2
 ------
 

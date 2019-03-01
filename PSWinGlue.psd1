@@ -8,7 +8,7 @@
     RootModule = 'PSWinGlue.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.4.2'
+    ModuleVersion = '0.4.3'
 
     # Supported PSEditions
     # CompatiblePSEditions = @()
