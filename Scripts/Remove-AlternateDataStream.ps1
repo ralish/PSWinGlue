@@ -9,21 +9,21 @@
 
     This cmdlet provides options to remove common alternate data streams which may be unwanted while preserving any other present alternate data streams.
 
-    .PARAMETER Path
-    Directory from which to remove specified alternate data streams from files.
-
-    .PARAMETER ZoneIdentifier
-    Remove the Zone Identifier alternate data stream.
-
-    This stream indicates the origin of a downloaded file and is typically used to trigger additional prompts or protections on opening "untrusted" files.
-
     .PARAMETER Dropbox
     Remove alternate data streams added by Dropbox.
 
     These data streams are not publicly documented but appear to at least contain a unique machine identifier for tracking purposes.
 
+    .PARAMETER Path
+    Directory from which to remove specified alternate data streams from files.
+
     .PARAMETER Recurse
     Recurse into subdirectories.
+
+    .PARAMETER ZoneIdentifier
+    Remove the Zone Identifier alternate data stream.
+
+    This stream indicates the origin of a downloaded file and is typically used to trigger additional prompts or protections on opening "untrusted" files.
 
     .EXAMPLE
     Remove-AlternateDataStreams -Path D:\Library -ZoneIdentifier -Recurse

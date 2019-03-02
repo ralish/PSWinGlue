@@ -12,11 +12,11 @@
     .PARAMETER EventIds
     An array of integers specifying the event IDs we want to match in the query. The default is "(111,202,203,323,329,331)" which corresponds to all event IDs which represent a failure to complete a scheduled task. This is particularly useful for identifying task failures.
 
-    .PARAMETER MaxEvents
-    Specifies the maximum number of events to return. Note that any filtering of returned events by the IgnoredTasks parameter is performed after the specified maximum number of events have been returned. As such, you cannot rely on receiving the maximum number of results as set by MaxEvents, even if there are enough events in the Event Log with filtering applied.
-
     .PARAMETER IgnoredTasks
     An array of strings specifying the task names we wish to exclude from the returned results.
+
+    .PARAMETER MaxEvents
+    Specifies the maximum number of events to return. Note that any filtering of returned events by the IgnoredTasks parameter is performed after the specified maximum number of events have been returned. As such, you cannot rely on receiving the maximum number of results as set by MaxEvents, even if there are enough events in the Event Log with filtering applied.
 
     .EXAMPLE
     Remove-AlternateDataStreams -Path D:\Library -ZoneIdentifier -Recurse
