@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.4.4
+------
+
+- Added `#Requires -Version` statement to all scripts
+- `Uninstall-ObsoleteModule`: Check `PowerShellGet` module is present
+
 v0.4.3
 ------
 
