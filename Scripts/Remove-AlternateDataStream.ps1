@@ -37,6 +37,8 @@
     https://github.com/ralish/PSWinGlue
 #>
 
+#Requires -Version 3.0
+
 [CmdletBinding(SupportsShouldProcess)]
 Param(
     [Parameter(Mandatory)]

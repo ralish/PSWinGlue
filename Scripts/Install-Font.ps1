@@ -1,3 +1,5 @@
+#Requires -Version 4.0
+
 [CmdletBinding(SupportsShouldProcess)]
 Param(
     [ValidateNotNullOrEmpty()]

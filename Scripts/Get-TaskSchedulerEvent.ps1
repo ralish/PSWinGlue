@@ -31,6 +31,8 @@
     https://github.com/ralish/PSWinGlue
 #>
 
+#Requires -Version 3.0
+
 [CmdletBinding()]
 Param(
     [Int32[]]$EventIds=(111, 202, 203, 323, 329, 331),
@@ -63,7 +65,7 @@ if ($IgnoredTasks) {
 }
 
 if (!$Events) {
-    Write-Warning 'No events returned for the given filter.'
+    Write-Warning -Message 'No events returned for the given filter.'
 }
 
 return $Events
