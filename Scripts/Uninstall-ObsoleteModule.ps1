@@ -5,6 +5,16 @@ Param(
     [String[]]$Name
 )
 
+# Check required modules are present:
+# - PowerShellGet: Included with PowerShell 5.0+ otherwise must be installed
+$RequiredModules = @('PowerShellGet')
+foreach ($Module in $RequiredModules) {
+    Write-Verbose -Message ('Checking module is available: {0}' -f $Module)
+    if (!(Get-Module -Name $Module -ListAvailable)) {
+        throw ('Required module not available: {0}' -f $Module)
+    }
+}
+
 $GetParams = @{}
 if ($PSBoundParameters.ContainsKey('Name')) {
     $GetParams['Name'] = $Name
