@@ -20,7 +20,9 @@ $UninstallKeys = Get-ChildItem -Path $ComputerNativeRegPath
 if (Test-Path -Path $ComputerWow64RegPath -PathType Container) {
     $UninstallKeys += Get-ChildItem -Path $ComputerWow64RegPath
 }
-$UninstallKeys += Get-ChildItem -Path $UserRegPath
+if (Test-Path -Path $UserRegPath -PathType Container) {
+    $UninstallKeys += Get-ChildItem -Path $UserRegPath
+}
 
 # Filter out all the uninteresting installation results
 foreach ($UninstallKey in $UninstallKeys) {
