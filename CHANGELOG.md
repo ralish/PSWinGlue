@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.4.5
+------
+
+- `Get-InstalledPrograms`: Check if user `Uninstall` key exists
+
 v0.4.4
 ------
 
