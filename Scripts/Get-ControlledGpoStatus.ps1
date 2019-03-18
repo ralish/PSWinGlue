@@ -34,25 +34,50 @@ foreach ($AgpmGPO in $AgpmGPOs) {
         Name        = $AgpmGPO.Name
         AGPM        = $AgpmGPO
         Domain      = $null
-        Status      = 'Unknown'
+        Status      = @()
     }
 
     $DomainGPO = $DomainGPOs | Where-Object { $_.Id -eq $AgpmGPO.ID.TrimStart('{').TrimEnd('}') }
     if ($DomainGPO) {
         $Result.Domain = $DomainGPO
-
-        # The casting is necessary as the AGPM version properties are strings
-        if ([Int32]$AgpmGPO.ComputerVersion -eq $DomainGPO.Computer.DSVersion -and [Int32]$AgpmGPO.UserVersion -eq $DomainGPO.User.DSVersion) {
-            $Result.Status = 'Current'
-        } elseif ([Int32]$AgpmGPO.ComputerVersion -le $DomainGPO.Computer.DSVersion -and [Int32]$AgpmGPO.UserVersion -le $DomainGPO.User.DSVersion) {
-            $Result.Status = 'Out-of-date (Import)'
-        } elseif ([Int32]$AgpmGPO.ComputerVersion -ge $DomainGPO.Computer.DSVersion -and [Int32]$AgpmGPO.UserVersion -ge $DomainGPO.User.DSVersion) {
-            $Result.Status = 'Newer (Deploy)'
-        } else {
-            $Result.Status = 'Inconsistent'
-        }
     } else {
-        $Result.Status = 'Only exists in AGPM'
+        $Result.Status = @('Only exists in AGPM')
+        $Results += $Result
+        continue
+    }
+
+    # Check display name is in sync
+    if ($AgpmGPO.Name -ne $DomainGPO.DisplayName) {
+        $Result.Status += @('Name mismatch')
+    }
+
+    # Check computer policy is in sync
+    #
+    # The casting is necessary as the AGPM version properties are strings.
+    if ([Int32]$AgpmGPO.ComputerVersion -lt $DomainGPO.Computer.DSVersion) {
+        $Result.Status += @('Domain computer policy is newer (Import)')
+    } elseif ([Int32]$AgpmGPO.ComputerVersion -gt $DomainGPO.Computer.DSVersion) {
+        $Result.Status += @('AGPM computer policy is newer (Deploy)')
+    }
+
+    # Check user policy is in sync
+    #
+    # The casting is necessary as the AGPM version properties are strings.
+    if ([Int32]$AgpmGPO.UserVersion -lt $DomainGPO.User.DSVersion) {
+        $Result.Status += @('Domain user policy is newer (Import)')
+    } elseif ([Int32]$AgpmGPO.UserVersion -gt $DomainGPO.User.DSVersion) {
+        $Result.Status += @('AGPM user policy is newer (Deploy)')
+    }
+
+    # Check WMI filter is in sync
+    if ($AgpmGPO.WmiFilterName -or $DomainGPO.WmiFilter) {
+        if ($AgpmGPO.WmiFilterName -ne $DomainGPO.WmiFilter.Name) {
+            $Result.Status += @('WMI filter mismatch')
+        }
+    }
+
+    if (!$Result.Status) {
+        $Result.Status = @('OK')
     }
 
     $Results += $Result
@@ -66,7 +91,7 @@ foreach ($MissingGPO in $MissingGPOs) {
         Name        = $MissingGPO.DisplayName
         AGPM        = $null
         Domain      = $MissingGPO
-        Status      = 'Only exists in Domain'
+        Status      = @('Only exists in Domain')
     }
 }
 
