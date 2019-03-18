@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.4.6
+------
+
+- `Get-ControlledGpoStatus`: Matching of GPOs is now done by GUID instead of name
+- `Get-ControlledGpoStatus`: Adds check that GPO name and any WMI filter is in sync
+- `Get-ControlledGpoStatus`: Computer & user policy version mismatches are now reported separately
+
 v0.4.5
 ------
 
