@@ -37,7 +37,7 @@ foreach ($AgpmGPO in $AgpmGPOs) {
         Status      = 'Unknown'
     }
 
-    $DomainGPO = $DomainGPOs | Where-Object { $_.DisplayName -eq $AgpmGPO.Name }
+    $DomainGPO = $DomainGPOs | Where-Object { $_.Id -eq $AgpmGPO.ID.TrimStart('{').TrimEnd('}') }
     if ($DomainGPO) {
         $Result.Domain = $DomainGPO
 
@@ -58,8 +58,8 @@ foreach ($AgpmGPO in $AgpmGPOs) {
     $Results += $Result
 }
 
-# Check the status of any domain GPOs not controlled by AGPM
-$MissingGPOs = $DomainGPOs | Where-Object { $_.DisplayName -notin $AgpmGPOs.Name }
+# Add any domain GPOs not controlled by AGPM
+$MissingGPOs = $DomainGPOs | Where-Object { $_.Id -notin $AgpmGPOs.ID.TrimStart('{').TrimEnd('}') }
 foreach ($MissingGPO in $MissingGPOs) {
     $Results += [PSCustomObject]@{
         PSTypeName  = $TypeName
