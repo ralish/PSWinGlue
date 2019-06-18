@@ -1,7 +1,13 @@
 #Requires -Version 3.0
 
 [CmdletBinding()]
-Param()
+Param(
+    [ValidateNotNullOrEmpty()]
+    [String]$Domain,
+
+    [ValidateNotNullOrEmpty()]
+    [String]$AgpmServer
+)
 
 # Check required modules are present:
 # - GroupPolicy: Provided by Windows Server GPMC feature or Windows Client RSAT feature
@@ -19,12 +25,58 @@ $TypeName = 'PSWinGlue.ControlledGpoStatus'
 
 Update-TypeData -TypeName $TypeName -DefaultDisplayPropertySet @('Name', 'Status') -Force
 
-# Retrieve domain GPOs and AGPM controlled GPOs
+# Retrieve domain GPOs
 try {
-    $DomainGPOs = Get-GPO -All
-    $AgpmGPOs = Get-ControlledGpo
+    if ($Domain) {
+        $DomainGPOs = Get-GPO -All -Domain $Domain
+    } else {
+        $DomainGPOs = Get-GPO -All
+    }
 } catch {
     throw $_
+}
+
+# Retrieve AGPM GPOs
+try {
+    $DefaultArchiveChanged = $false
+
+    # Overriding the DefaultArchive registry value is unfortunately necessary
+    # as the Microsoft.Agpm PowerShell module does not respect any configured
+    # per-domain servers listed under the Domains key, unlike the MMC snap-in.
+    if ($AgpmServer) {
+        $AgpmRegPath = 'HKLM:\Software\Microsoft\AGPM'
+
+        if (Test-Path -Path $AgpmRegPath) {
+            $AgpmReg = Get-Item -Path $AgpmRegPath -ErrorAction Stop
+        } else {
+            $AgpmReg = New-Item -Path $AgpmRegPath -ErrorAction Stop
+        }
+
+        if ($AgpmReg.Property.Contains('DefaultArchive')) {
+            $OriginalDefaultArchive = $AgpmReg.GetValue('DefaultArchive')
+        }
+
+        if ($AgpmServer -notmatch ':[1-9][0-9]*$') {
+            $DefaultArchive = '{0}:4600' -f $AgpmServer
+        } else {
+            $DefaultArchive = $AgpmServer
+        }
+
+        Set-ItemProperty -Path $AgpmRegPath -Name 'DefaultArchive' -Value $DefaultArchive -ErrorAction Stop
+        $DefaultArchiveChanged = $true
+    }
+
+    if ($Domain) {
+        $AgpmGPOs = Get-ControlledGpo -Domain $Domain -ErrorAction Stop
+    } else {
+        $AgpmGPOs = Get-ControlledGpo -ErrorAction Stop
+    }
+} catch {
+    throw $_
+} finally {
+    if ($DefaultArchiveChanged) {
+        Set-ItemProperty -Path $AgpmRegPath -Name 'DefaultArchive' -Value $OriginalDefaultArchive
+    }
 }
 
 # Check the status of all AGPM controlled GPOs
