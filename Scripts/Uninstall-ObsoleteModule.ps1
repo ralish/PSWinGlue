@@ -15,7 +15,7 @@ foreach ($Module in $RequiredModules) {
     }
 }
 
-$GetParams = @{}
+$GetParams = @{ }
 if ($PSBoundParameters.ContainsKey('Name')) {
     $GetParams['Name'] = $Name
 }
