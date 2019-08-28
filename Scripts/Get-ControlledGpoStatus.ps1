@@ -28,9 +28,9 @@ Update-TypeData -TypeName $TypeName -DefaultDisplayPropertySet @('Name', 'Status
 # Retrieve domain GPOs
 try {
     if ($Domain) {
-        $DomainGPOs = Get-GPO -All -Domain $Domain
+        $DomainGPOs = @(Get-GPO -All -Domain $Domain)
     } else {
-        $DomainGPOs = Get-GPO -All
+        $DomainGPOs = @(Get-GPO -All)
     }
 } catch {
     throw $_
@@ -67,9 +67,9 @@ try {
     }
 
     if ($Domain) {
-        $AgpmGPOs = Get-ControlledGpo -Domain $Domain -ErrorAction Stop
+        $AgpmGPOs = @(Get-ControlledGpo -Domain $Domain -ErrorAction Stop)
     } else {
-        $AgpmGPOs = Get-ControlledGpo -ErrorAction Stop
+        $AgpmGPOs = @(Get-ControlledGpo -ErrorAction Stop)
     }
 } catch {
     throw $_
@@ -136,7 +136,12 @@ foreach ($AgpmGPO in $AgpmGPOs) {
 }
 
 # Add any domain GPOs not controlled by AGPM
-$MissingGPOs = $DomainGPOs | Where-Object { $_.Id -notin $AgpmGPOs.ID.TrimStart('{').TrimEnd('}') }
+if ($AgpmGPOs.Count -gt 0) {
+    $MissingGPOs = $DomainGPOs | Where-Object { $_.Id -notin $AgpmGPOs.ID.TrimStart('{').TrimEnd('}') }
+} else {
+    $MissingGPOs = $DomainGPOs
+}
+
 foreach ($MissingGPO in $MissingGPOs) {
     $Results += [PSCustomObject]@{
         PSTypeName  = $TypeName
