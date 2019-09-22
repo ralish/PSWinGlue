@@ -36,7 +36,24 @@ foreach ($Module in $InstalledModules) {
     if ($AllVersions.Count -gt 1) {
         Write-Verbose -Message ('Uninstalling {0} version(s): {1}' -f $Module.Name, [String]::Join(', ', $AllVersions.Version -ne $Module.Version))
         if ($PSCmdlet.ShouldProcess($Module.Name, 'Uninstall obsolete versions')) {
-            $AllVersions | Where-Object Version -ne $Module.Version | Uninstall-Module
+            $ObsoleteModules = $AllVersions | Where-Object Version -ne $Module.Version
+            foreach ($ObsoleteModule in $ObsoleteModules) {
+                try {
+                    $ObsoleteModule | Uninstall-Module -ErrorAction Stop
+                } catch {
+                    switch -Regex ($PSItem.FullyQualifiedErrorId) {
+                        '^AdminPrivilegesRequiredForUninstall,' {
+                            Write-Warning -Message ('Unable to uninstall module as Administrator rights are required: {0} v{1}' -f $ObsoleteModule.Name, $ObsoleteModule.Version)
+                        }
+
+                        '^UnableToUninstallAsOtherModulesNeedThisModule,' {
+                            Write-Warning -Message ('Unable to uninstall module due to presence of dependent modules: {0} v{1}' -f $ObsoleteModule.Name, $ObsoleteModule.Version)
+                        }
+
+                        Default { throw }
+                    }
+                }
+            }
         }
     }
 }
