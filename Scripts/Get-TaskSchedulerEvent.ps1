@@ -35,8 +35,8 @@
 
 [CmdletBinding()]
 Param(
-    [Int32[]]$EventIds=(111, 202, 203, 323, 329, 331),
-    [Int32]$MaxEvents=10,
+    [Int[]]$EventIds=(111, 202, 203, 323, 329, 331),
+    [Int]$MaxEvents=10,
     [String[]]$IgnoredTasks=(
         '\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319',
         '\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319 64',
