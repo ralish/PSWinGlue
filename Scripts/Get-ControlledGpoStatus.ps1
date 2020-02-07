@@ -106,18 +106,18 @@ foreach ($AgpmGPO in $AgpmGPOs) {
     # Check computer policy is in sync
     #
     # The casting is necessary as the AGPM version properties are strings.
-    if ([Int32]$AgpmGPO.ComputerVersion -lt $DomainGPO.Computer.DSVersion) {
+    if ([Int]$AgpmGPO.ComputerVersion -lt $DomainGPO.Computer.DSVersion) {
         $Result.Status += @('Domain computer policy is newer (Import)')
-    } elseif ([Int32]$AgpmGPO.ComputerVersion -gt $DomainGPO.Computer.DSVersion) {
+    } elseif ([Int]$AgpmGPO.ComputerVersion -gt $DomainGPO.Computer.DSVersion) {
         $Result.Status += @('AGPM computer policy is newer (Deploy)')
     }
 
     # Check user policy is in sync
     #
     # The casting is necessary as the AGPM version properties are strings.
-    if ([Int32]$AgpmGPO.UserVersion -lt $DomainGPO.User.DSVersion) {
+    if ([Int]$AgpmGPO.UserVersion -lt $DomainGPO.User.DSVersion) {
         $Result.Status += @('Domain user policy is newer (Import)')
-    } elseif ([Int32]$AgpmGPO.UserVersion -gt $DomainGPO.User.DSVersion) {
+    } elseif ([Int]$AgpmGPO.UserVersion -gt $DomainGPO.User.DSVersion) {
         $Result.Status += @('AGPM user policy is newer (Deploy)')
     }
 
