@@ -70,6 +70,7 @@
         'Get-Fonts',
         'Get-InstalledPrograms',
         'Get-TaskSchedulerEvent',
+        'Install-ExcelAddin',
         'Install-Font',
         'Register-MicrosoftUpdate',
         'Remove-AlternateDataStream',
