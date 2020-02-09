@@ -72,12 +72,11 @@
         'Get-TaskSchedulerEvent',
         'Install-ExcelAddin',
         'Install-Font',
-        'Install-VSTOAddin',
+        'Manage-VSTOAddin',
         'Register-MicrosoftUpdate',
         'Remove-AlternateDataStream',
         'Uninstall-Font',
         'Uninstall-ObsoleteModule',
-        'Uninstall-VSTOAddin',
         'Update-GitRepository',
         'Update-OneDriveSetup'
     )
