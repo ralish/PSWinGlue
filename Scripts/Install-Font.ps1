@@ -197,8 +197,20 @@ Function Install-FontShell {
         $FOF_NOERRORUI = 1024
         $FOF_NOCOPYSECURITYATTRIBS = 2048
 
-        $ShellApp = New-Object -ComObject Shell.Application
-        $FontsFolder = $ShellApp.NameSpace($ssfFONTS)
+        try {
+            $ShellApp = New-Object -ComObject Shell.Application
+        } catch {
+            throw $_
+        }
+
+        try {
+            $FontsFolder = $ShellApp.NameSpace($ssfFONTS)
+        } catch {
+            throw $_
+        } finally {
+            $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ShellApp)
+        }
+
         $CopyOptions = $FOF_SILENT + $FOF_NOCONFIRMATION + $FOF_NOERRORUI + $FOF_NOCOPYSECURITYATTRIBS
     }
 
@@ -209,6 +221,11 @@ Function Install-FontShell {
                 $FontsFolder.CopyHere($Font.FullName, $CopyOptions)
             }
         }
+    }
+
+    End {
+        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($FontsFolder)
+        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ShellApp)
     }
 }
 
