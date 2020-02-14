@@ -12,5 +12,17 @@ $ServiceID = '7971f918-a847-4430-9279-4a52d1efe18d'
 # https://docs.microsoft.com/en-au/windows/desktop/api/wuapi/ne-wuapi-tagaddserviceflag
 $ServiceFlags = 7
 
-$ServiceManager = New-Object -ComObject Microsoft.Update.ServiceManager
-$ServiceManager.AddService2($ServiceID, $ServiceFlags, '')
+try {
+    $ServiceManager = New-Object -ComObject Microsoft.Update.ServiceManager
+} catch {
+    throw $_
+}
+
+try {
+    $ServiceRegistration = $ServiceManager.AddService2($ServiceID, $ServiceFlags, '')
+    $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ServiceRegistration)
+} catch {
+    throw $_
+} finally {
+    $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ServiceManager)
+}
