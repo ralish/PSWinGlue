@@ -11,6 +11,7 @@ Param(
 
 # Local add-ins path when copying
 $LocalAddinsPath = Join-Path -Path $env:APPDATA -ChildPath 'Microsoft\AddIns'
+Write-Debug -Message ('Local Office add-ins path: {0}' -f $LocalAddinsPath)
 
 $AddinsPath = Get-Item -Path $Path -ErrorAction Stop
 if ($AddinsPath -is [IO.FileInfo]) {
@@ -30,17 +31,19 @@ try {
     Write-Debug -Message 'Creating Excel COM object ...'
     $Excel = New-Object -ComObject Excel.Application
 } catch {
-    throw 'Unable to instantiate Excel COM object.'
+    throw 'Failed to create Excel COM object.'
 }
 
 try {
-    $ExcelAddins = $Excel.Addins
-    # The Addins.Add() method fails without an open workbook
-    $null = $Excel.Workbooks.Add()
+    Write-Debug -Message 'Retrieving Excel add-ins ...'
+    $ExcelAddinsObj = $Excel.AddIns
+    [Collections.ArrayList]$ExcelAddins = @()
+    foreach ($ExcelAddin in $ExcelAddinsObj) {
+        $null = $ExcelAddins.Add($ExcelAddin)
+    }
 
     foreach ($Addin in $Addins) {
-        $AddinInstalled = $ExcelAddins | Where-Object Name -eq $Addin.Name
-        if ($AddinInstalled) {
+        if ($ExcelAddins.Name -contains $Addin.Name) {
             Write-Verbose -Message ('Excel add-in already installed: {0}' -f $Addin.Name)
             if (!$Reinstall) {
                 continue
@@ -63,13 +66,33 @@ try {
             }
         }
 
-        # https://docs.microsoft.com/en-us/office/vba/api/excel.addins.add
-        $ExcelAddin = $ExcelAddins.Add($Addin.FullName, $false)
+        # AddIns.Add() requires an open workbook
+        if (!$ExcelWorkbook) {
+            Write-Debug -Message 'Creating Excel workbook ...'
+            $ExcelWorkbook = $Excel.Workbooks.Add()
+        }
+
+        Write-Debug -Message ('Adding Excel add-in: {0}' -f $Addin.Name)
+        $ExcelAddin = $ExcelAddinsObj.Add($Addin.FullName, $false)
         $ExcelAddin.Installed = $true
+        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ExcelAddin)
 
         Write-Verbose -Message ('Installed Excel add-in: {0}' -f $Addin.Name)
     }
 } finally {
-    Write-Debug -Message 'Disposing Excel COM object ...'
+    if ($ExcelWorkbook) {
+        Write-Debug -Message 'Closing Excel workbook ...'
+        $ExcelWorkbook.Close($false)
+        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ExcelWorkbook)
+    }
+
+    Write-Debug -Message 'Disposing Excel add-ins ...'
+    foreach ($ExcelAddin in $ExcelAddins) {
+        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ExcelAddin)
+    }
+    $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ExcelAddinsObj)
+
+    Write-Debug -Message 'Quitting Excel ...'
     $Excel.Quit()
+    $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($Excel)
 }
