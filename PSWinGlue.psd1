@@ -75,6 +75,7 @@
         'Manage-VSTOAddin',
         'Register-MicrosoftUpdate',
         'Remove-AlternateDataStream',
+        'Set-SharedPCMode',
         'Uninstall-Font',
         'Uninstall-ObsoleteModule',
         'Update-GitRepository',
