@@ -52,13 +52,11 @@ Param(
 )
 
 $GetDefaultUserProfileDirectory = @'
-[return: MarshalAs(UnmanagedType.Bool)]
-[DllImport("userenv.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-public static extern bool GetDefaultUserProfileDirectory(IntPtr lpProfileDir, out int lpcchSize);
+[DllImport("userenv.dll", CharSet = CharSet.Auto, SetLastError = true)]
+public static extern bool GetDefaultUserProfileDirectory(IntPtr lpProfileDir, out uint lpcchSize);
 
-[return: MarshalAs(UnmanagedType.Bool)]
-[DllImport("userenv.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-public static extern bool GetDefaultUserProfileDirectory(System.Text.StringBuilder lpProfileDir, out int lpcchSize);
+[DllImport("userenv.dll", CharSet = CharSet.Auto, SetLastError = true)]
+public static extern bool GetDefaultUserProfileDirectory(System.Text.StringBuilder lpProfileDir, out uint lpcchSize);
 '@
 
 if ($SkipRunningSetup -and $SkipUpdatingDefaultProfile) {
