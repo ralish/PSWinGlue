@@ -10,9 +10,8 @@ Param(
 )
 
 $script:MoveFileEx = @'
-[return: MarshalAs(UnmanagedType.Bool)]
-[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-public static extern bool MoveFileEx(string lpExistingFileName, IntPtr lpNewFileName, uint dwFlags);
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+public static extern bool MoveFileEx([MarshalAs(UnmanagedType.LPTStr)] string lpExistingFileName, IntPtr lpNewFileName, uint dwFlags);
 '@
 
 Function Uninstall-Font {
