@@ -7,6 +7,10 @@ PSWinGlue
 
 A PowerShell module consisting of an assortment of useful scripts.
 
+- [Requirements](#requirements)
+- [Installing](#installing)
+- [License](#license)
+
 Requirements
 ------------
 
