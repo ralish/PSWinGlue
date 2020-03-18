@@ -20,6 +20,11 @@ foreach ($Module in $RequiredModules) {
     }
 }
 
+if ($Domain -and !$AgpmServer) {
+    $AgpmServer = 'agpm.{0}' -f $Domain
+    Write-Warning -Message ('Using default AGPM server: {0}' -f $AgpmServer)
+}
+
 $Results = @()
 $TypeName = 'PSWinGlue.ControlledGpoStatus'
 
