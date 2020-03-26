@@ -76,6 +76,7 @@
         'Register-MicrosoftUpdate',
         'Remove-AlternateDataStream',
         'Set-SharedPCMode',
+        'Set-VPNConnection',
         'Uninstall-Font',
         'Uninstall-ObsoleteModule',
         'Update-GitRepository',
