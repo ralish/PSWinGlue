@@ -1,31 +1,41 @@
 <#
     .SYNOPSIS
-    Fetches events matching given IDs from the Task Scheduler event log
+    Retrieves events matching the specified IDs from the Task Scheduler event log
 
     .DESCRIPTION
-    Alternate data streams can contain important (meta)data which shouldn't be removed, however, they can also be a nuisance.
-
-    This is particularly true of certain common alternate data streams used to perform additional prompting of the user for "untrusted" files.
-
-    This cmdlet provides options to remove common alternate data streams which may be unwanted while preserving any other present alternate data streams.
+    Retrieves specified event IDs from the Task Scheduler event log, up to a maximum number of events, with optional filtering of specific task names.
 
     .PARAMETER EventIds
-    An array of integers specifying the event IDs we want to match in the query. The default is "(111,202,203,323,329,331)" which corresponds to all event IDs which represent a failure to complete a scheduled task. This is particularly useful for identifying task failures.
+    The event IDs to query for.
+
+    The default is to query for event IDs which represent a scheduled task failure: 111, 202, 203, 323, 329, 331.
 
     .PARAMETER IgnoredTasks
-    An array of strings specifying the task names we wish to exclude from the returned results.
+    An optional array of task names to filter out of the returned results.
+
+    The default is to exclude several tasks for which failure is typically benign:
+    - \Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319
+    - \Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319 64
+    - \Microsoft\Windows\NetCfg\BindingWorkItemQueueHandler
+    - \Microsoft\Windows\Shell\CreateObjectTas
+
+    Note that filtering of ignored tasks is performed after the specified maximum number of events have been returned.
 
     .PARAMETER MaxEvents
-    Specifies the maximum number of events to return. Note that any filtering of returned events by the IgnoredTasks parameter is performed after the specified maximum number of events have been returned. As such, you cannot rely on receiving the maximum number of results as set by MaxEvents, even if there are enough events in the Event Log with filtering applied.
+    Maximum number of events to return.
+
+    The default is 100 events.
+
+    Note that this parameter interacts with the IgnoredTasks parameter in a way that may be counter-intuitive.
 
     .EXAMPLE
-    Remove-AlternateDataStreams -Path D:\Library -ZoneIdentifier -Recurse
+    Get-TaskSchedulerEvent
 
-    Removes all Zone.Identifier alternate data streams recursively from files in D:\Library.
+    Retrieves the most recent 100 events indicating a scheduled task failure, ignoring typically benign task failures.
 
     .NOTES
-    For more information on Task Scheduler event IDs consult the TechNet documentation at:
-    https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/dd315533(v%3dws.10)
+    Task Scheduler events
+    https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/dd315533(v%3dws.10)#events
 
     .LINK
     https://github.com/ralish/PSWinGlue
@@ -35,9 +45,13 @@
 
 [CmdletBinding()]
 Param(
-    [Int[]]$EventIds=(111, 202, 203, 323, 329, 331),
-    [Int]$MaxEvents=10,
-    [String[]]$IgnoredTasks=(
+    [ValidateNotNullOrEmpty()]
+    [Int[]]$EventIds=@(111, 202, 203, 323, 329, 331),
+
+    [ValidateRange(1, 1000)]
+    [Int]$MaxEvents=100,
+
+    [String[]]$IgnoredTasks=@(
         '\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319',
         '\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319 64',
         '\Microsoft\Windows\NetCfg\BindingWorkItemQueueHandler',
@@ -45,8 +59,7 @@ Param(
     )
 )
 
-$Events = @()
-$Events += Get-WinEvent -FilterHashTable @{ ProviderName = 'Microsoft-Windows-TaskScheduler'; ID = $EventIds } -MaxEvents $MaxEvents
+$Events = @(Get-WinEvent -FilterHashTable @{ ProviderName = 'Microsoft-Windows-TaskScheduler'; ID = $EventIds } -MaxEvents $MaxEvents)
 
 if ($IgnoredTasks) {
     $FilteredEvents = @()
