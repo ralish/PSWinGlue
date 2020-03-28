@@ -42,24 +42,24 @@
 
 [CmdletBinding()]
 Param(
-    [bool]$EnableSharedPCMode,
-    [bool]$SetEduPolicies,
-    [bool]$SetPowerPolicies,
-    [int]$MaintenanceStartTime,
-    [bool]$SignInOnResume,
-    [int]$SleepTimeout,
-    [bool]$EnableAccountManager,
-    [int16]$AccountModel,
-    [int16]$DeletionPolicy,
-    [int16]$DiskLevelDeletion,
-    [int16]$DiskLevelCaching,
-    [bool]$RestrictLocalStorage,
-    [string]$KioskModeAUMID,
-    [string]$KioskModeUserTileDisplayText,
-    [int16]$InactiveThreshold,
-    [int16]$MaxPageFileSizeMB,
+    [Bool]$EnableSharedPCMode,
+    [Bool]$SetEduPolicies,
+    [Bool]$SetPowerPolicies,
+    [Int]$MaintenanceStartTime,
+    [Bool]$SignInOnResume,
+    [Int]$SleepTimeout,
+    [Bool]$EnableAccountManager,
+    [Int16]$AccountModel,
+    [Int16]$DeletionPolicy,
+    [Int16]$DiskLevelDeletion,
+    [Int16]$DiskLevelCaching,
+    [Bool]$RestrictLocalStorage,
+    [String]$KioskModeAUMID,
+    [String]$KioskModeUserTileDisplayText,
+    [Int16]$InactiveThreshold,
+    [Int16]$MaxPageFileSizeMB,
 
-    [switch]$PassThru
+    [Switch]$PassThru
 )
 
 $OSBuild = [Environment]::OSVersion.Version.Build
