@@ -1,3 +1,49 @@
+<#
+    .SYNOPSIS
+    Checks Windows domain GPOs and AGPM server controlled GPOs are in sync
+
+    .DESCRIPTION
+    Enumerates all GPOs in a Windows domain and controlled GPOs on an AGPM server. Checks are run on the discovered GPOs to determine if the version deployed to the domain matches that on the AGPM server.
+
+    Matching of GPOs between the Windows domain and the AGPM server is performed by GPO GUID. If a domain or AGPM controlled GPO does not have an associated matching GPO this is flagged in the output.
+
+    For GPOs which are matched the following inconsistencies are flagged:
+    - Name mismatch
+    - Computer policy version mismatch
+    - User policy version mismatch
+    - WMI filter name mismatch
+
+    .PARAMETER AgpmServer
+    The fully qualified domain name of the AGPM server for which controlled GPOs will be enumerated.
+
+    If a domain was not specified, the default AGPM server will be used as configured in the AGPM Client.
+
+    If a domain was specified, the default AGPM server will be "agpm.<domain>".
+
+    .PARAMETER Domain
+    The fully qualified domain name of the Windows domain for which GPOs will be enumerated.
+
+    The default is the domain of the host system.
+
+    .EXAMPLE
+    Get-ControlledGpoStatus
+
+    Enumerates all GPOs on the host system's domain against the default AGPM server and verifies they are in sync.
+
+    .NOTES
+    The following PowerShell modules are required:
+    - GroupPolicy
+      Required to enumerate Windows domain GPOs.
+      Windows Server: Provided by the Group Policy Management feature.
+      Windows clients: Installed via the Remote Server Administration Tools.
+    - Microsoft.Agpm
+      Required to enumerate AGPM server controlled GPOs.
+      This module is provided by the AGPM Client software.
+
+    .LINK
+    https://github.com/ralish/PSWinGlue
+#>
+
 #Requires -Version 3.0
 
 [CmdletBinding()]
