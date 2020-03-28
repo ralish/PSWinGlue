@@ -10,12 +10,12 @@
     .PARAMETER SetupDestDir
     Path to the directory where we'll store a copy of the OneDrive setup file.
 
-    If not provided we'll default to "Microsoft\OneDriveSetup" in the ProgramData directory.
+    The default is $env:ProgramData\Microsoft\OneDriveSetup.
 
     .PARAMETER SetupFilePath
     Path to the OneDrive setup file.
 
-    If not provided we'll default to "OneDriveSetup.exe" in the current working directory.
+    The default is OneDriveSetup.exe in the current working directory.
 
     .PARAMETER SkipRunningSetup
     Skips executing OneDrive setup.
@@ -24,13 +24,13 @@
     Skips updating the default user profile to automatically run OneDrive setup on login.
 
     .EXAMPLE
-    Update-OneDriveSetup.ps1
+    Update-OneDriveSetup
 
     Copies OneDrive setup to the default destination path, runs setup and updates the default user profile.
 
     .NOTES
-    New OneDrive sync client release notes
-    https://support.office.com/en-us/article/New-OneDrive-sync-client-release-notes-845dcf18-f921-435e-bf28-4e24b95e5fc0
+    OneDrive release notes
+    https://support.office.com/en-us/article/onedrive-release-notes-845dcf18-f921-435e-bf28-4e24b95e5fc0
 
     .LINK
     https://github.com/ralish/PSWinGlue
