@@ -1,3 +1,33 @@
+<#
+    .SYNOPSIS
+    Retrieves all registered fonts
+
+    .DESCRIPTION
+    Enumerates all registered fonts, performs basic consistency checks, and returns the font name and associated file for each font.
+
+    A font is registered and passes consistency checks if it is listed in the registry and the referenced font file is valid.
+
+    Warnings are printed for registered fonts missing their associated font file, and font files missing an associated registration.
+
+    .PARAMETER Scope
+    Specifies whether to enumerate system fonts or per-user fonts.
+
+    Support for per-user fonts is only available from Windows 10 1809.
+
+    The default is system fonts.
+
+    .EXAMPLE
+    Get-Fonts
+
+    Retrieves all registered system fonts and outputs warnings for any inconsistencies.
+
+    .NOTES
+    Only OpenType (.otf) and TrueType (.ttf) fonts are supported.
+
+    .LINK
+    https://github.com/ralish/PSWinGlue
+#>
+
 #Requires -Version 3.0
 
 [CmdletBinding()]
