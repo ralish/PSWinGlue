@@ -7,7 +7,7 @@
 
     This is particularly true of certain common alternate data streams used to perform additional prompting of the user for "untrusted" files.
 
-    This cmdlet provides options to remove common alternate data streams which may be unwanted while preserving any other present alternate data streams.
+    This cmdlet provides options to remove common alternate data streams which may be unwanted while preserving any other alternate data streams.
 
     .PARAMETER Dropbox
     Remove alternate data streams added by Dropbox.
@@ -31,7 +31,8 @@
     Removes all Zone.Identifier alternate data streams recursively from files in D:\Library.
 
     .NOTES
-    For bulk removal of all alternate data streams consider using Sysinternals Streams.
+    For bulk removal of all alternate data streams consider using Sysinternals Streams:
+    https://docs.microsoft.com/en-us/sysinternals/downloads/streams
 
     .LINK
     https://github.com/ralish/PSWinGlue
