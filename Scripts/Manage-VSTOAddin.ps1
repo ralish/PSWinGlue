@@ -24,7 +24,7 @@
     Runs the VSTO operation silently.
 
     .EXAMPLE
-    Manage-VSTOAddin.ps1 -Operation Install -ManifestPath "https://example.s3.amazonaws.com/live/MyAddin.vsto" -Silent
+    Manage-VSTOAddin -Operation Install -ManifestPath "https://example.s3.amazonaws.com/live/MyAddin.vsto" -Silent
 
     Silently installs the VSTO add-in described by the provided manifest.
 
@@ -35,10 +35,10 @@
 
     The VSTOInstaller.exe which matches the bitness of the PowerShell runtime will be used (e.g. 64-bit VSTOInstaller.exe with 64-bit PowerShell).
 
-    The parameters for VSTOInstaller.exe are documented on TechNet:
-    https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2010/bb772078(v=vs.100)
+    Parameters for VSTOInstaller.exe
+    https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2010/bb772078(v=vs.100)#parameters-for-vstoinstallerexe
 
-    The error codes for VSTOInstaller.exe are documented on MSDN:
+    VSTOInstaller Error Codes
     https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2010/bb757423(v=vs.100)
 
     .LINK
