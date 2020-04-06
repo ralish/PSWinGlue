@@ -19,7 +19,6 @@ $script:ValidExtsRegex = '\.(otf|ttf)$'
 Function Get-Fonts {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     [CmdletBinding()]
-    [OutputType([Object[]])]
     Param(
         [ValidateSet('System', 'User')]
         [String]$Scope='System'
@@ -231,7 +230,6 @@ Function Install-FontShell {
 
 Function Test-IsAdministrator {
     [CmdletBinding()]
-    [OutputType([bool])]
     Param()
 
     $User = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
@@ -243,7 +241,6 @@ Function Test-IsAdministrator {
 
 Function Test-PerUserFontsSupported {
     [CmdletBinding()]
-    [OutputType([bool])]
     Param()
 
     # Windows 10 1809 introduced support for installing fonts per-user. The

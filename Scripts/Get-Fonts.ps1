@@ -43,7 +43,6 @@ $script:ValidExtsRegex = '\.(otf|ttf)$'
 Function Get-Fonts {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     [CmdletBinding()]
-    [OutputType([Object[]])]
     Param(
         [ValidateSet('System', 'User')]
         [String]$Scope='System'
@@ -111,7 +110,6 @@ Function Get-Fonts {
 
 Function Test-PerUserFontsSupported {
     [CmdletBinding()]
-    [OutputType([bool])]
     Param()
 
     # Windows 10 1809 introduced support for installing fonts per-user. The

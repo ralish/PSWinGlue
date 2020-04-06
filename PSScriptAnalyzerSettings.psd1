@@ -1,6 +1,10 @@
 @{
     IncludeRules = @('*')
 
+    ExcludeRules = @(
+        'PSUseOutputTypeCorrectly'
+    )
+
     Rules = @{
         # The statement assignment alignment check applies to the hashtable
         # assignment itself and not just its properties.

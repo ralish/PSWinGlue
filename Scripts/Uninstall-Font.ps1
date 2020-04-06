@@ -84,7 +84,6 @@ Function Uninstall-Font {
 
 Function Test-IsAdministrator {
     [CmdletBinding()]
-    [OutputType([bool])]
     Param()
 
     $User = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
@@ -96,7 +95,6 @@ Function Test-IsAdministrator {
 
 Function Test-PerUserFontsSupported {
     [CmdletBinding()]
-    [OutputType([bool])]
     Param()
 
     # Windows 10 1809 introduced support for installing fonts per-user. The
