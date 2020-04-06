@@ -117,7 +117,7 @@ if (!$SkipUpdatingDefaultProfile) {
     $DefaultUserProfileHive = Join-Path -Path $DefaultUserProfilePath.ToString() -ChildPath 'NTUSER.DAT'
     Write-Debug -Message ('Default user profile registry hive: {0}' -f $DefaultUserProfileHive)
 
-    $Registry = Start-Process -FilePath reg -ArgumentList @('LOAD', 'HKLM\OneDriveSetup', $DefaultUserProfileHive) -Wait -PassThru
+    $Registry = Start-Process -FilePath reg -ArgumentList @('LOAD', 'HKLM\OneDriveSetup', "`"$DefaultUserProfileHive`"") -Wait -PassThru
     if ($Registry.ExitCode -ne 0) {
         throw 'Failed to load the default user profile registry hive with error code: {0}' -f $Registry.ExitCode
     }
