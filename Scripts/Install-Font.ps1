@@ -48,8 +48,8 @@ Function Get-Fonts {
         throw ('Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey)
     }
 
-    [Collections.ArrayList]$Fonts = @()
-    [Collections.ArrayList]$FontsRegFileNames = @()
+    $Fonts = [Collections.ArrayList]::new()
+    $FontsRegFileNames = [Collections.ArrayList]::new()
     foreach ($FontRegName in ($FontsReg.Property | Sort-Object)) {
         $FontRegValue = $FontsReg.GetValue($FontRegName)
 
@@ -306,7 +306,7 @@ foreach ($Font in $InstalledFonts) {
 }
 
 # Filter out any already installed fonts
-[Collections.ArrayList]$InstallFonts = @()
+$InstallFonts = [Collections.ArrayList]::new()
 foreach ($Font in $SourceFonts) {
     $FontHash = Get-FileHash -Path $Font.FullName
 

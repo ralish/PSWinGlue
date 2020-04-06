@@ -37,7 +37,7 @@ try {
 try {
     Write-Debug -Message 'Retrieving Excel add-ins ...'
     $ExcelAddinsObj = $Excel.AddIns
-    [Collections.ArrayList]$ExcelAddins = @()
+    $ExcelAddins = [Collections.ArrayList]::new()
     foreach ($ExcelAddin in $ExcelAddinsObj) {
         $null = $ExcelAddins.Add($ExcelAddin)
     }

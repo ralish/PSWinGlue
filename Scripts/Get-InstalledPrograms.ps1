@@ -3,7 +3,7 @@
 [CmdletBinding()]
 Param()
 
-$Results = @()
+$Results = [Collections.ArrayList]::new()
 $TypeName = 'PSWinGlue.InstalledProgram'
 
 Update-TypeData -TypeName $TypeName -DefaultDisplayPropertySet @('Name', 'Publisher', 'Version', 'Scope') -Force
@@ -98,7 +98,7 @@ foreach ($UninstallKey in $UninstallKeys) {
         $Result.Scope = 'User'
     }
 
-    $Results += $Result
+    $null = $Results.Add($Result)
 }
 
 return ($Results | Sort-Object -Property Name)

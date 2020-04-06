@@ -71,7 +71,7 @@ if ($Domain -and !$AgpmServer) {
     Write-Warning -Message ('Using default AGPM server: {0}' -f $AgpmServer)
 }
 
-$Results = @()
+$Results = [Collections.ArrayList]::new()
 $TypeName = 'PSWinGlue.ControlledGpoStatus'
 
 Update-TypeData -TypeName $TypeName -DefaultDisplayPropertySet @('Name', 'Status') -Force
@@ -145,7 +145,7 @@ foreach ($AgpmGPO in $AgpmGPOs) {
         $Result.Domain = $DomainGPO
     } else {
         $Result.Status = @('Only exists in AGPM')
-        $Results += $Result
+        $null = $Results.Add($Result)
         continue
     }
 
@@ -183,7 +183,7 @@ foreach ($AgpmGPO in $AgpmGPOs) {
         $Result.Status = @('OK')
     }
 
-    $Results += $Result
+    $null = $Results.Add($Result)
 }
 
 # Add any domain GPOs not controlled by AGPM
@@ -194,13 +194,14 @@ if ($AgpmGPOs.Count -gt 0) {
 }
 
 foreach ($MissingGPO in $MissingGPOs) {
-    $Results += [PSCustomObject]@{
+    $Result = [PSCustomObject]@{
         PSTypeName  = $TypeName
         Name        = $MissingGPO.DisplayName
         AGPM        = $null
         Domain      = $MissingGPO
         Status      = @('Only exists in Domain')
     }
+    $null = $Results.Add($Result)
 }
 
 return ($Results | Sort-Object -Property Name)
