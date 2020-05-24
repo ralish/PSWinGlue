@@ -62,7 +62,7 @@ Param(
 $Events = @(Get-WinEvent -FilterHashTable @{ ProviderName = 'Microsoft-Windows-TaskScheduler'; ID = $EventIds } -MaxEvents $MaxEvents)
 
 if ($IgnoredTasks) {
-    $FilteredEvents = [Collections.ArrayList]::new()
+    $FilteredEvents = New-Object -TypeName Collections.ArrayList
 
     foreach ($Event in $Events) {
         $EventXml = [Xml]$Event.ToXml()

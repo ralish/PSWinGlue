@@ -71,7 +71,7 @@ if ($Domain -and !$AgpmServer) {
     Write-Warning -Message ('Using default AGPM server: {0}' -f $AgpmServer)
 }
 
-$Results = [Collections.ArrayList]::new()
+$Results = New-Object -TypeName Collections.ArrayList
 $TypeName = 'PSWinGlue.ControlledGpoStatus'
 
 Update-TypeData -TypeName $TypeName -DefaultDisplayPropertySet @('Name', 'Status') -Force

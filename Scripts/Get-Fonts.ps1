@@ -71,8 +71,8 @@ Function Get-Fonts {
         throw ('Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey)
     }
 
-    $Fonts = [Collections.ArrayList]::new()
-    $FontsRegFileNames = [Collections.ArrayList]::new()
+    $Fonts = New-Object -TypeName Collections.ArrayList
+    $FontsRegFileNames = New-Object -TypeName Collections.ArrayList
     foreach ($FontRegName in ($FontsReg.Property | Sort-Object)) {
         $FontRegValue = $FontsReg.GetValue($FontRegName)
 

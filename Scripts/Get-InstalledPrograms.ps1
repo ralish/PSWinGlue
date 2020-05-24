@@ -3,7 +3,7 @@
 [CmdletBinding()]
 Param()
 
-$Results = [Collections.ArrayList]::new()
+$Results = New-Object -TypeName Collections.ArrayList
 $TypeName = 'PSWinGlue.InstalledProgram'
 
 Update-TypeData -TypeName $TypeName -DefaultDisplayPropertySet @('Name', 'Publisher', 'Version', 'Scope') -Force
