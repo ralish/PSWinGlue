@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.5.1
+------
+
+- `Update-OneDriveSetup`: Quote default user profile hive path for reg.exe
+- Syntax fixes for older PowerShell versions
+- Performance optimisations around array use
+
 v0.5.0
 ------
 
