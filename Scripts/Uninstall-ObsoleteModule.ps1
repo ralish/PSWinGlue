@@ -26,9 +26,15 @@ Write-Verbose -Message 'Retrieving available modules ...'
 $AvailableModules = Get-Module -ListAvailable -Verbose:$false @GetParams
 
 foreach ($Module in $InstalledModules) {
-    # Try to avoid subsequent call to Get-InstalledModule as it's obscenely slow
+    # Try to avoid subsequent call to Get-InstalledModule as it's *very* slow
+    #
+    # Unfortunately, we can't rely on "Get-Module -ListAvailable" due to a bug
+    # in older PowerShell releases which results in modules with certain names
+    # not being returned if they haven't been imported into the session.
+    #
+    # See: https://github.com/PowerShell/PowerShell/pull/8777
     [PSModuleInfo[]]$MatchingModules = $AvailableModules | Where-Object Name -eq $Module.Name
-    if ($MatchingModules.Count -eq 1) {
+    if ($MatchingModules -and $MatchingModules.Count -eq 1) {
         continue
     }
 
