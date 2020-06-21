@@ -6,7 +6,7 @@ Param(
     [String]$Name,
 
     [ValidateSet('System', 'User')]
-    [String]$Scope='System'
+    [String]$Scope = 'System'
 )
 
 $script:MoveFileEx = @'
@@ -21,7 +21,7 @@ Function Uninstall-Font {
         [String]$Name,
 
         [ValidateSet('System', 'User')]
-        [String]$Scope='System'
+        [String]$Scope = 'System'
     )
 
     switch ($Scope) {

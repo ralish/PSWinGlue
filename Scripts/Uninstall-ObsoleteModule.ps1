@@ -33,7 +33,7 @@ foreach ($Module in $InstalledModules) {
     # not being returned if they haven't been imported into the session.
     #
     # See: https://github.com/PowerShell/PowerShell/pull/8777
-    [PSModuleInfo[]]$MatchingModules = $AvailableModules | Where-Object Name -eq $Module.Name
+    [PSModuleInfo[]]$MatchingModules = $AvailableModules | Where-Object Name -EQ $Module.Name
     if ($MatchingModules -and $MatchingModules.Count -eq 1) {
         continue
     }
@@ -42,7 +42,7 @@ foreach ($Module in $InstalledModules) {
     if ($AllVersions.Count -gt 1) {
         Write-Verbose -Message ('Uninstalling {0} version(s): {1}' -f $Module.Name, [String]::Join(', ', $AllVersions.Version -ne $Module.Version))
         if ($PSCmdlet.ShouldProcess($Module.Name, 'Uninstall obsolete versions')) {
-            $ObsoleteModules = $AllVersions | Where-Object Version -ne $Module.Version
+            $ObsoleteModules = $AllVersions | Where-Object Version -NE $Module.Version
             foreach ($ObsoleteModule in $ObsoleteModules) {
                 try {
                     $ObsoleteModule | Uninstall-Module -ErrorAction Stop

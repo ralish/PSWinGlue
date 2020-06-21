@@ -46,12 +46,12 @@
 [CmdletBinding()]
 Param(
     [ValidateNotNullOrEmpty()]
-    [Int[]]$EventIds=@(111, 202, 203, 323, 329, 331),
+    [Int[]]$EventIds = @(111, 202, 203, 323, 329, 331),
 
     [ValidateRange(1, 1000)]
-    [Int]$MaxEvents=100,
+    [Int]$MaxEvents = 100,
 
-    [String[]]$IgnoredTasks=@(
+    [String[]]$IgnoredTasks = @(
         '\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319',
         '\Microsoft\Windows\.NET Framework\.NET Framework NGEN v4.0.30319 64',
         '\Microsoft\Windows\NetCfg\BindingWorkItemQueueHandler',
@@ -59,7 +59,7 @@ Param(
     )
 )
 
-$Events = @(Get-WinEvent -FilterHashTable @{ ProviderName = 'Microsoft-Windows-TaskScheduler'; ID = $EventIds } -MaxEvents $MaxEvents)
+$Events = @(Get-WinEvent -FilterHashtable @{ ProviderName = 'Microsoft-Windows-TaskScheduler'; ID = $EventIds } -MaxEvents $MaxEvents)
 
 if ($IgnoredTasks) {
     $FilteredEvents = New-Object -TypeName Collections.ArrayList
@@ -67,7 +67,7 @@ if ($IgnoredTasks) {
     foreach ($Event in $Events) {
         $EventXml = [Xml]$Event.ToXml()
         $EventData = $EventXml.Event.EventData.Data
-        $TaskName = $EventData | Where-Object Name -eq 'TaskName'
+        $TaskName = $EventData | Where-Object Name -EQ 'TaskName'
 
         if ($TaskName -notin $IgnoredTasks) {
             $null = $FilteredEvents.Add($Event)

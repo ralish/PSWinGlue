@@ -42,10 +42,10 @@
 [CmdletBinding()]
 Param(
     [ValidateNotNullOrEmpty()]
-    [String]$SetupFilePath='OneDriveSetup.exe',
+    [String]$SetupFilePath = 'OneDriveSetup.exe',
 
     [ValidateNotNullOrEmpty()]
-    [String]$SetupDestDir=('{0}\Microsoft\OneDriveSetup' -f $env:ProgramData),
+    [String]$SetupDestDir = "$env:ProgramData\Microsoft\OneDriveSetup",
 
     [Switch]$SkipRunningSetup,
     [Switch]$SkipUpdatingDefaultProfile

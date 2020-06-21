@@ -133,11 +133,11 @@ try {
 # Check the status of all AGPM controlled GPOs
 foreach ($AgpmGPO in $AgpmGPOs) {
     $Result = [PSCustomObject]@{
-        PSTypeName  = $TypeName
-        Name        = $AgpmGPO.Name
-        AGPM        = $AgpmGPO
-        Domain      = $null
-        Status      = @()
+        PSTypeName = $TypeName
+        Name       = $AgpmGPO.Name
+        AGPM       = $AgpmGPO
+        Domain     = $null
+        Status     = @()
     }
 
     $DomainGPO = $DomainGPOs | Where-Object { $_.Id -eq $AgpmGPO.ID.TrimStart('{').TrimEnd('}') }
@@ -195,11 +195,11 @@ if ($AgpmGPOs.Count -gt 0) {
 
 foreach ($MissingGPO in $MissingGPOs) {
     $Result = [PSCustomObject]@{
-        PSTypeName  = $TypeName
-        Name        = $MissingGPO.DisplayName
-        AGPM        = $null
-        Domain      = $MissingGPO
-        Status      = @('Only exists in Domain')
+        PSTypeName = $TypeName
+        Name       = $MissingGPO.DisplayName
+        AGPM       = $null
+        Domain     = $MissingGPO
+        Status     = @('Only exists in Domain')
     }
     $null = $Results.Add($Result)
 }

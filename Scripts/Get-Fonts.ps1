@@ -33,7 +33,7 @@
 [CmdletBinding()]
 Param(
     [ValidateSet('System', 'User')]
-    [String]$Scope='System'
+    [String]$Scope = 'System'
 )
 
 # Supported font extensions
@@ -45,7 +45,7 @@ Function Get-Fonts {
     [CmdletBinding()]
     Param(
         [ValidateSet('System', 'User')]
-        [String]$Scope='System'
+        [String]$Scope = 'System'
     )
 
     switch ($Scope) {
@@ -60,7 +60,7 @@ Function Get-Fonts {
     }
 
     try {
-        $FontFiles = @(Get-ChildItem -Path $FontsFolder -ErrorAction Stop | Where-Object Extension -in $script:ValidExts)
+        $FontFiles = @(Get-ChildItem -Path $FontsFolder -ErrorAction Stop | Where-Object Extension -In $script:ValidExts)
     } catch {
         throw ('Unable to enumerate {0} fonts folder: {1}' -f $Scope.ToLower(), $FontsFolder)
     }
@@ -92,7 +92,7 @@ Function Get-Fonts {
 
         $Font = [PSCustomObject]@{
             Name = $FontRegName
-            File = $FontFiles | Where-Object Name -eq $FontRegFileName
+            File = $FontFiles | Where-Object Name -EQ $FontRegFileName
         }
 
         $null = $Fonts.Add($Font)

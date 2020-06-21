@@ -5,10 +5,10 @@ Param(
     [Parameter(Mandatory)]
     [String]$ProfileName,
 
-    [Parameter(ParameterSetName='Content', Mandatory)]
+    [Parameter(ParameterSetName = 'Content', Mandatory)]
     [String]$ProfileXmlContent,
 
-    [Parameter(ParameterSetName='File', Mandatory)]
+    [Parameter(ParameterSetName = 'File', Mandatory)]
     [String]$ProfileXmlFile,
 
     [Switch]$PassThru
@@ -36,13 +36,13 @@ try {
     throw $_
 }
 
-$WmiNamespace       = 'root\cimv2\mdm\dmmap'
-$WmiClassName       = 'MDM_VPNv2_01'
-$MdmCspPath         = './Vendor/MSFT/VPNv2'
-$MdmCspProperties   = @{
-    ParentID    = $MdmCspPath
-    InstanceID  = [Uri]::EscapeDataString($ProfileName)
-    ProfileXML  = [Security.SecurityElement]::Escape($ProfileXml.InnerXml)
+$WmiNamespace = 'root\cimv2\mdm\dmmap'
+$WmiClassName = 'MDM_VPNv2_01'
+$MdmCspPath = './Vendor/MSFT/VPNv2'
+$MdmCspProperties = @{
+    ParentID   = $MdmCspPath
+    InstanceID = [Uri]::EscapeDataString($ProfileName)
+    ProfileXML = [Security.SecurityElement]::Escape($ProfileXml.InnerXml)
 }
 
 $VpnProfile = New-CimInstance -Namespace $WmiNamespace -ClassName $WmiClassName -Property $MdmCspProperties -ErrorAction Stop

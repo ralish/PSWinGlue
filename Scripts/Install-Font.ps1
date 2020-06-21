@@ -6,10 +6,10 @@ Param(
     [String]$Path,
 
     [ValidateSet('System', 'User')]
-    [String]$Scope='System',
+    [String]$Scope = 'System',
 
     [ValidateSet('Manual', 'Shell')]
-    [String]$Method='Manual'
+    [String]$Method = 'Manual'
 )
 
 # Supported font extensions
@@ -21,7 +21,7 @@ Function Get-Fonts {
     [CmdletBinding()]
     Param(
         [ValidateSet('System', 'User')]
-        [String]$Scope='System'
+        [String]$Scope = 'System'
     )
 
     switch ($Scope) {
@@ -36,7 +36,7 @@ Function Get-Fonts {
     }
 
     try {
-        $FontFiles = @(Get-ChildItem -Path $FontsFolder -ErrorAction Stop | Where-Object Extension -in $script:ValidExts)
+        $FontFiles = @(Get-ChildItem -Path $FontsFolder -ErrorAction Stop | Where-Object Extension -In $script:ValidExts)
     } catch {
         throw ('Unable to enumerate {0} fonts folder: {1}' -f $Scope.ToLower(), $FontsFolder)
     }
@@ -68,7 +68,7 @@ Function Get-Fonts {
 
         $Font = [PSCustomObject]@{
             Name = $FontRegName
-            File = $FontFiles | Where-Object Name -eq $FontRegFileName
+            File = $FontFiles | Where-Object Name -EQ $FontRegFileName
         }
 
         $null = $Fonts.Add($Font)
@@ -91,7 +91,7 @@ Function Install-FontManual {
         [IO.FileInfo[]]$Fonts,
 
         [ValidateSet('System', 'User')]
-        [String]$Scope='System'
+        [String]$Scope = 'System'
     )
 
     Begin {
@@ -278,7 +278,7 @@ try {
 
 # Enumerate fonts to be installed
 if ($SourceFontPath -is [IO.DirectoryInfo]) {
-    $SourceFonts = @(Get-ChildItem -Path $SourceFontPath | Where-Object Extension -in $script:ValidExts)
+    $SourceFonts = @(Get-ChildItem -Path $SourceFontPath | Where-Object Extension -In $script:ValidExts)
 
     if (!$SourceFonts) {
         throw ('Unable to locate any fonts in provided directory: {0}' -f $SourceFontPath)

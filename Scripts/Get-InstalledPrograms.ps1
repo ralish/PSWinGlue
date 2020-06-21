@@ -56,16 +56,16 @@ foreach ($UninstallKey in $UninstallKeys) {
     }
 
     $Result = [PSCustomObject]@{
-        PSTypeName      = $TypeName
-        PSPath          = $Program.PSPath
-        Name            = $Program.DisplayName
-        Publisher       = $null
-        InstallDate     = $null
-        EstimatedSize   = $null
-        Version         = $null
-        Location        = $null
-        Uninstall       = $null
-        Scope           = $null
+        PSTypeName    = $TypeName
+        PSPath        = $Program.PSPath
+        Name          = $Program.DisplayName
+        Publisher     = $null
+        InstallDate   = $null
+        EstimatedSize = $null
+        Version       = $null
+        Location      = $null
+        Uninstall     = $null
+        Scope         = $null
     }
 
     if ($Program.PSObject.Properties['Publisher']) {
