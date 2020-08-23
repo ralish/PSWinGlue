@@ -52,6 +52,9 @@ foreach ($Module in $InstalledModules) {
                             Write-Warning -Message ('Unable to uninstall module as Administrator rights are required: {0} v{1}' -f $ObsoleteModule.Name, $ObsoleteModule.Version)
                         }
 
+                        # Uninstall-Module prints its own warning
+                        '^ModuleIsInUse,' { }
+
                         '^UnableToUninstallAsOtherModulesNeedThisModule,' {
                             Write-Warning -Message ('Unable to uninstall module due to presence of dependent modules: {0} v{1}' -f $ObsoleteModule.Name, $ObsoleteModule.Version)
                         }
