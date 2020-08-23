@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.5.2
+------
+
+- `Uninstall-ObsoleteModule`: Add workaround for `Get-Module` ignoring modules with names matching locales
+- `Uninstall-ObsoleteModule`: Don't throw an exception on `Uninstall-Module` returning `ModuleIsInUse`
+- Apply code formatting
+
 v0.5.1
 ------
 
