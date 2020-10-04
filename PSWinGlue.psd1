@@ -71,6 +71,7 @@
         'Get-Fonts',
         'Get-InstalledPrograms',
         'Get-TaskSchedulerEvent',
+        'Hide-SilverlightUpdates',
         'Install-ExcelAddin',
         'Install-Font',
         'Manage-VSTOAddin',
