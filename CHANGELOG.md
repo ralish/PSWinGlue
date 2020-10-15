@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.5.3
+------
+
+- `Hide-SilverlightUpdates`: Sets all Silverlight updates from Windows Update to Hidden
+
 v0.5.2
 ------
 
