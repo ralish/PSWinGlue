@@ -218,14 +218,14 @@ public struct WINDOW_BUFFER_SIZE_RECORD
     public COORD dwSize;
 }
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 public extern static bool AddConsoleAlias(
     [MarshalAs(UnmanagedType.LPTStr)] string Source,
     [MarshalAs(UnmanagedType.LPTStr)] string Target,
     [MarshalAs(UnmanagedType.LPTStr)] string ExeName
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 public extern static bool AddConsoleAlias(
     [MarshalAs(UnmanagedType.LPTStr)] string Source,
     IntPtr Target,
@@ -272,7 +272,7 @@ public extern static bool FillConsoleOutputAttribute(
     out uint lpNumberOfAttrsWritten
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 public extern static bool FillConsoleOutputCharacter(
     IntPtr hConsoleOutput,
     char cCharacter,
@@ -295,7 +295,7 @@ public extern static bool GenerateConsoleCtrlEvent(
     uint dwProcessGroupID
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 public static extern int GetConsoleAlias(
     [MarshalAs(UnmanagedType.LPTStr)] string lpSource,
     System.Text.StringBuilder lpTargetBuffer,
@@ -303,25 +303,25 @@ public static extern int GetConsoleAlias(
     [MarshalAs(UnmanagedType.LPTStr)] string lpExeName
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 public static extern int GetConsoleAliases(
     System.Text.StringBuilder lpAliasBuffer,
     uint AliasBufferLength,
     [MarshalAs(UnmanagedType.LPTStr)] string lpExeName
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
 public static extern int GetConsoleAliasesLength(
     [MarshalAs(UnmanagedType.LPTStr)] string lpExeName
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 public static extern int GetConsoleAliasExes(
     System.Text.StringBuilder lpExeNameBuffer,
     uint ExeNameBufferLength
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+[DllImport("kernel32.dll")]
 public static extern int GetConsoleAliasExesLength();
 
 [DllImport("kernel32.dll", SetLastError = true)]
@@ -355,7 +355,7 @@ public static extern bool GetConsoleMode(
     out uint lpMode
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 public static extern int GetConsoleOriginalTitle(
     System.Text.StringBuilder lpConsoleTitle,
     uint nSize
@@ -387,7 +387,7 @@ public static extern bool GetConsoleSelectionInfo(
     out CONSOLE_SELECTION_INFO lpConsoleSelectionInfo
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 public static extern int GetConsoleTitle(
     System.Text.StringBuilder lpConsoleTitle,
     uint nSize
@@ -436,7 +436,7 @@ public static extern bool HandlerRoutine(
     uint dwCtrlType
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", SetLastError = true)]
 public static extern bool PeekConsoleInput(
     IntPtr hConsoleInput,
     [MarshalAs(UnmanagedType.LPArray)]
@@ -526,7 +526,7 @@ public static extern bool SetConsoleTextAttribute(
     ushort wAttributes
 );
 
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
 public static extern bool SetConsoleTitle(
     [MarshalAs(UnmanagedType.LPTStr)] string lpConsoleTitle
 );

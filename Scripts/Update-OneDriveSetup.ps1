@@ -52,10 +52,10 @@ Param(
 )
 
 $GetDefaultUserProfileDirectory = @'
-[DllImport("userenv.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("userenv.dll", EntryPoint = "GetDefaultUserProfileDirectoryW", SetLastError = true)]
 public static extern bool GetDefaultUserProfileDirectory(IntPtr lpProfileDir, out uint lpcchSize);
 
-[DllImport("userenv.dll", CharSet = CharSet.Auto, SetLastError = true)]
+[DllImport("userenv.dll", CharSet = CharSet.Unicode, EntryPoint = "GetDefaultUserProfileDirectoryW", ExactSpelling = true, SetLastError = true)]
 public static extern bool GetDefaultUserProfileDirectory(System.Text.StringBuilder lpProfileDir, out uint lpcchSize);
 '@
 
@@ -100,7 +100,7 @@ if (!$SkipUpdatingDefaultProfile) {
     Write-Verbose -Message 'Updating OneDrive setup path for default user profile ...'
 
     if (!('PSWinGlue.UpdateOneDriveSetup' -as [Type])) {
-        Add-Type -Namespace 'PSWinGlue' -Name 'UpdateOneDriveSetup' -MemberDefinition $GetDefaultUserProfileDirectory
+        Add-Type -Namespace PSWinGlue -Name UpdateOneDriveSetup -MemberDefinition $GetDefaultUserProfileDirectory
     }
 
     $DefaultUserProfileBufSize = 0

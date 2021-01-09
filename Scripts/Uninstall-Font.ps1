@@ -10,8 +10,8 @@ Param(
 )
 
 $script:MoveFileEx = @'
-[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-public static extern bool MoveFileEx([MarshalAs(UnmanagedType.LPTStr)] string lpExistingFileName, IntPtr lpNewFileName, uint dwFlags);
+[DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "MoveFileExW", ExactSpelling = true, SetLastError = true)]
+public static extern bool MoveFileEx([MarshalAs(UnmanagedType.LPWStr)] string lpExistingFileName, IntPtr lpNewFileName, uint dwFlags);
 '@
 
 Function Uninstall-Font {
@@ -68,7 +68,7 @@ Function Uninstall-Font {
             }
 
             if (!('PSWinGlue.UninstallFont' -as [Type])) {
-                Add-Type -Namespace 'PSWinGlue' -Name 'UninstallFont' -MemberDefinition $script:MoveFileEx
+                Add-Type -Namespace PSWinGlue -Name UninstallFont -MemberDefinition $script:MoveFileEx
             }
 
             $MOVEFILE_DELAY_UNTIL_REBOOT = 4
