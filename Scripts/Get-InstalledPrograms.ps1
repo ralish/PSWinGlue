@@ -1,7 +1,34 @@
 #Requires -Version 3.0
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingEmptyCatchBlock', '')]
 [CmdletBinding()]
 Param()
+
+$RegQueryInfoKey = @'
+[DllImport("advapi32.dll", EntryPoint = "RegQueryInfoKeyW")]
+public static extern int RegQueryInfoKey(Microsoft.Win32.SafeHandles.SafeRegistryHandle hKey,
+                                         IntPtr lpClass,
+                                         IntPtr lpcchClass,
+                                         IntPtr lpReserved,
+                                         IntPtr lpcSubKeys,
+                                         IntPtr lpcbMaxSubKeyLen,
+                                         IntPtr lpcbMaxClassLen,
+                                         IntPtr lpcValues,
+                                         IntPtr lpcbMaxValueNameLen,
+                                         IntPtr lpcbMaxValueLen,
+                                         IntPtr lpcbSecurityDescriptor,
+                                         out UInt64 lpftLastWriteTime);
+'@
+
+if (!('PSWinGlue.GetInstalledPrograms' -as [Type])) {
+    $AddTypeParams = @{ }
+
+    if ($PSVersionTable.PSObject.Properties['PSEdition'] -and $PSVersionTable.PSEdition -eq 'Core') {
+        $AddTypeParams['ReferencedAssemblies'] = 'Microsoft.Win32.Registry'
+    }
+
+    Add-Type -Namespace PSWinGlue -Name GetInstalledPrograms -MemberDefinition $RegQueryInfoKey @AddTypeParams
+}
 
 $Results = New-Object -TypeName Collections.ArrayList
 $TypeName = 'PSWinGlue.InstalledProgram'
@@ -72,8 +99,30 @@ foreach ($UninstallKey in $UninstallKeys) {
         $Result.Publisher = $Program.Publisher
     }
 
+    # Try and convert the InstallDate value to a DateTime
     if ($Program.PSObject.Properties['InstallDate']) {
-        $Result.InstallDate = $Program.InstallDate
+        $RegInstallDate = $Program.InstallDate
+        if ($RegInstallDate -match '^[0-9]{8}') {
+            try {
+                $Result.InstallDate = New-Object -TypeName DateTime -ArgumentList $RegInstallDate.Substring(0, 4), $RegInstallDate.Substring(4, 2), $RegInstallDate.Substring(6, 2)
+            } catch { }
+        }
+
+        if (!$Result.InstallDate) {
+            Write-Warning -Message ('[{0}] Registry key has invalid value for InstallDate: {1}' -f $Program.DisplayName, $RegInstallDate)
+        }
+    }
+
+    # Fall back to the last write time of the registry key
+    if (!$Result.InstallDate) {
+        [UInt64]$RegLastWriteTime = 0
+        $Status = [PSWinGlue.GetInstalledPrograms]::RegQueryInfoKey($UninstallKey.Handle, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [ref]$RegLastWriteTime)
+
+        if ($Status -eq 0) {
+            $Result.InstallDate = [DateTime]::FromFileTime($RegLastWriteTime)
+        } else {
+            Write-Warning -Message ('[{0}] Retrieving registry key last write time failed with status: {1}' -f $Program.DisplayName, $Status)
+        }
     }
 
     if ($Program.PSObject.Properties['EstimatedSize']) {
