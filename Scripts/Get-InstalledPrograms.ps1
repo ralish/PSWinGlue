@@ -23,7 +23,7 @@ public static extern int RegQueryInfoKey(Microsoft.Win32.SafeHandles.SafeRegistr
 if (!('PSWinGlue.GetInstalledPrograms' -as [Type])) {
     $AddTypeParams = @{ }
 
-    if ($PSVersionTable.PSObject.Properties['PSEdition'] -and $PSVersionTable.PSEdition -eq 'Core') {
+    if ($PSVersionTable['PSEdition'] -eq 'Core') {
         $AddTypeParams['ReferencedAssemblies'] = 'Microsoft.Win32.Registry'
     }
 
