@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.5.5
+------
+
+- `Get-InstalledPrograms`: Fix incorrect access to `$PSVersionTable` causing errors under PowerShell Core
+
 v0.5.4
 ------
 
