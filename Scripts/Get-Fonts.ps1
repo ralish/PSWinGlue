@@ -37,8 +37,8 @@ Param(
 )
 
 # Supported font extensions
-$script:ValidExts = @('.otf', '.ttf')
-$script:ValidExtsRegex = '\.(otf|ttf)$'
+$ValidExts = @('.otf', '.ttf')
+$ValidExtsRegex = '\.(otf|ttf)$'
 
 Function Get-Fonts {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
@@ -60,7 +60,7 @@ Function Get-Fonts {
     }
 
     try {
-        $FontFiles = @(Get-ChildItem -Path $FontsFolder -ErrorAction Stop | Where-Object Extension -In $script:ValidExts)
+        $FontFiles = @(Get-ChildItem -Path $FontsFolder -ErrorAction Stop | Where-Object Extension -In $ValidExts)
     } catch {
         throw ('Unable to enumerate {0} fonts folder: {1}' -f $Scope.ToLower(), $FontsFolder)
     }
@@ -82,7 +82,7 @@ Function Get-Fonts {
             $FontRegFileName = $FontRegValue
         }
 
-        if ($FontRegFileName -notmatch $script:ValidExtsRegex) {
+        if ($FontRegFileName -notmatch $ValidExtsRegex) {
             Write-Debug -Message ('Ignoring font with unsupported extension: {0} -> {1}' -f $FontRegName, $FontRegFileName)
             continue
         } elseif ($FontFiles.Name -notcontains $FontRegFileName) {
