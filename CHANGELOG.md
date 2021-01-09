@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.5.4
+------
+
+- `Get-InstalledPrograms`: Fall back to last write time of uninstall registry key
+
 v0.5.3
 ------
 
