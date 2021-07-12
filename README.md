@@ -5,6 +5,8 @@ PSWinGlue
 [![pwsh dl](https://img.shields.io/powershellgallery/dt/PSWinGlue)](https://www.powershellgallery.com/packages/PSWinGlue)
 [![license](https://img.shields.io/github/license/ralish/PSWinGlue)](https://choosealicense.com/licenses/mit/)
 
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/ralish/PSWinGlue)
+
 A PowerShell module consisting of an assortment of useful scripts.
 
 - [Requirements](#requirements)
