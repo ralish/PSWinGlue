@@ -2,7 +2,10 @@
 
 [CmdletBinding(SupportsShouldProcess)]
 Param(
-    [String[]]$Name
+    [String[]]$Name,
+
+    [ValidateRange('NonNegative')]
+    [Int]$ProgressParentId
 )
 
 # Check required modules are present:
@@ -20,12 +23,28 @@ if ($PSBoundParameters.ContainsKey('Name')) {
     $GetParams['Name'] = $Name
 }
 
-Write-Verbose -Message 'Retrieving installed modules ...'
+$WriteProgressParams = @{ }
+
+if ($PSBoundParameters.ContainsKey('ProgressParentId')) {
+    $WriteProgressParams['ParentId'] = $ProgressParentId
+    $WriteProgressParams['Id'] = $ProgressParentId + 1
+}
+
+if ($Name) {
+    $WriteProgressParams['Activity'] = 'Uninstalling obsolete PowerShell modules (Filter: {0})' -f $Name
+} else {
+    $WriteProgressParams['Activity'] = 'Uninstalling obsolete PowerShell modules'
+}
+
+Write-Progress @WriteProgressParams -CurrentOperation 'Enumerating installed modules' -PercentComplete 0
 $InstalledModules = Get-InstalledModule -Verbose:$false @GetParams
-Write-Verbose -Message 'Retrieving available modules ...'
+
+Write-Progress @WriteProgressParams -CurrentOperation 'Enumerating available modules' -PercentComplete 5
 $AvailableModules = Get-Module -ListAvailable -Verbose:$false @GetParams
 
-foreach ($Module in $InstalledModules) {
+for ($ModuleIdx = 0; $ModuleIdx -lt $InstalledModules.Count; $ModuleIdx++) {
+    $Module = $InstalledModules[$ModuleIdx]
+
     # Try to avoid subsequent call to Get-InstalledModule as it's *very* slow
     #
     # Unfortunately, we can't rely on "Get-Module -ListAvailable" due to a bug
@@ -40,7 +59,10 @@ foreach ($Module in $InstalledModules) {
 
     [PSCustomObject[]]$AllVersions = Get-InstalledModule -AllVersions -Name $Module.Name
     if ($AllVersions.Count -gt 1) {
-        Write-Verbose -Message ('Uninstalling {0} version(s): {1}' -f $Module.Name, [String]::Join(', ', $AllVersions.Version -ne $Module.Version))
+        $PercentComplete = ($ModuleIdx + 1) / $InstalledModules.Count * 90
+        $CurrentOperation = 'Uninstalling {0} version(s): {1}' -f $Module.Name, [String]::Join(', ', $AllVersions.Version -ne $Module.Version)
+        Write-Progress @WriteProgressParams -CurrentOperation $CurrentOperation -PercentComplete $PercentComplete
+
         if ($PSCmdlet.ShouldProcess($Module.Name, 'Uninstall obsolete versions')) {
             $ObsoleteModules = $AllVersions | Where-Object Version -NE $Module.Version
             foreach ($ObsoleteModule in $ObsoleteModules) {
@@ -66,3 +88,5 @@ foreach ($Module in $InstalledModules) {
         }
     }
 }
+
+Write-Progress @WriteProgressParams -Completed
