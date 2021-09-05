@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.5.6
+------
+
+- `Uninstall-ObsoleteModule`: Add progress bar support
+
 v0.5.5
 ------
 
