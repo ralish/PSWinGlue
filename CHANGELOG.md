@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.5.7
+------
+
+- `Uninstall-ObsoleteModule`: Replace `ValidateRangeKind` attribute for PowerShell < 6.2 compatibility
+
 v0.5.6
 ------
 
