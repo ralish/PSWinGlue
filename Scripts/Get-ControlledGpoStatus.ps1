@@ -140,7 +140,7 @@ foreach ($AgpmGPO in $AgpmGPOs) {
         Status     = @()
     }
 
-    $DomainGPO = $DomainGPOs | Where-Object { $_.Id -eq $AgpmGPO.ID.TrimStart('{').TrimEnd('}') }
+    $DomainGPO = $DomainGPOs | Where-Object Id -EQ $AgpmGPO.ID.TrimStart('{').TrimEnd('}')
     if ($DomainGPO) {
         $Result.Domain = $DomainGPO
     } else {
@@ -188,7 +188,7 @@ foreach ($AgpmGPO in $AgpmGPOs) {
 
 # Add any domain GPOs not controlled by AGPM
 if ($AgpmGPOs.Count -gt 0) {
-    $MissingGPOs = $DomainGPOs | Where-Object { $_.Id -notin $AgpmGPOs.ID.TrimStart('{').TrimEnd('}') }
+    $MissingGPOs = $DomainGPOs | Where-Object Id -NotIn $AgpmGPOs.ID.TrimStart('{').TrimEnd('}')
 } else {
     $MissingGPOs = $DomainGPOs
 }

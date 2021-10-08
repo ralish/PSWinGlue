@@ -25,7 +25,7 @@ do {
     $SearchResults = $UpdateSearcher.Search("IsHidden=0 And IsInstalled=0")
 
     if ($SearchResults.Updates.Count -gt 0) {
-        foreach ($Update in ($SearchResults.Updates | Where-Object Title -Match 'Silverlight' )) {
+        foreach ($Update in ($SearchResults.Updates | Where-Object Title -Match 'Silverlight')) {
             Write-Verbose -Message ('Hiding update: {0}' -f $Update.Title)
             $Update.IsHidden = $true
             $UpdatesFound = $true

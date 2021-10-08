@@ -22,7 +22,7 @@ if ($AddinsPath -is [IO.FileInfo]) {
     throw 'Path must be a directory or Excel add-in file.'
 }
 
-$Addins = @($Items | Where-Object Extension -In ('.xla', '.xlam'))
+$Addins = @($Items | Where-Object Extension -In '.xla', '.xlam')
 if ($Addins.Count -eq 0) {
     throw 'Provided path has no Excel add-ins (xla/xlam).'
 }
