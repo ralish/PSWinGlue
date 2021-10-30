@@ -4,7 +4,7 @@
 Param(
     [String[]]$Name,
 
-    [ValidateRange(1, 100)]
+    [ValidateRange(-1, [Int]::MaxValue)]
     [Int]$ProgressParentId
 )
 
