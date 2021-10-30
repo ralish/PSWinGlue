@@ -11,50 +11,50 @@ using System.Text;
 
 namespace PSWinGlue {
     public static class ConsoleAPI {
+        #region Constants
+
+        // AttachConsole
+        public const uint ATTACH_PARENT_PROCESS = 4294967295; // -1
+
+        // CONSOLE_FONT_INFOEX
+        private const int LF_FACESIZE = 32;
+
+        #endregion
+
+        #region Delegates
+
+        public delegate bool HandlerRoutine(ControlEvent dwCtrlType);
+
+        #endregion
+
         #region Enumerations
 
         [Flags]
-        public enum ConsoleDisplayModeGetFlags {
-            CONSOLE_FULLSCREEN_MODE = 1,
-            CONSOLE_WINDOWED_MODE   = 2
+        public enum AccessRightsFlags : uint {
+            GENERIC_WRITE = 0x40000000,
+            GENERIC_READ  = 0x80000000
         }
 
         [Flags]
-        public enum ConsoleDisplayModeSetFlags {
-            CONSOLE_FULLSCREEN          = 1,
-            CONSOLE_FULLSCREEN_HARDWARE = 2
+        public enum CharacterAttributes : ushort {
+            FOREGROUND_BLUE            = 0x1,
+            FOREGROUND_GREEN           = 0x2,
+            FOREGROUND_RED             = 0x4,
+            FOREGROUND_INTENSITY       = 0x8,
+            BACKGROUND_BLUE            = 0x10,
+            BACKGROUND_GREEN           = 0x20,
+            BACKGROUND_RED             = 0x40,
+            BACKGROUND_INTENSITY       = 0x80,
+            COMMON_LVB_LEADING_BYTE    = 0x100,
+            COMMON_LVB_TRAILING_BYTE   = 0x200,
+            COMMON_LVB_GRID_HORIZONTAL = 0x400,
+            COMMON_LVB_GRID_LVERTICAL  = 0x800,
+            COMMON_LVB_GRID_RVERTICAL  = 0x1000,
+            COMMON_LVB_REVERSE_VIDEO   = 0x4000,
+            COMMON_LVB_UNDERSCORE      = 0x8000
         }
 
-        [Flags]
-        public enum ConsoleModeInputFlags {
-            ENABLE_PROCESSED_INPUT        = 0x001,
-            ENABLE_LINE_INPUT             = 0x002,
-            ENABLE_ECHO_INPUT             = 0x004,
-            ENABLE_WINDOW_INPUT           = 0x008,
-            ENABLE_MOUSE_INPUT            = 0x010,
-            ENABLE_INSERT_MODE            = 0x020,
-            ENABLE_QUICK_EDIT_MODE        = 0x040,
-            ENABLE_EXTENDED_FLAGS         = 0x080,
-            ENABLE_AUTO_POSITION          = 0x100,
-            ENABLE_VIRTUAL_TERMINAL_INPUT = 0x200
-        }
-
-        [Flags]
-        public enum ConsoleModeOutputFlags {
-            ENABLE_PROCESSED_OUTPUT            = 0x01,
-            ENABLE_WRAP_AT_EOL_OUTPUT          = 0x02,
-            ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x04,
-            DISABLE_NEWLINE_AUTO_RETURN        = 0x08,
-            ENABLE_LVB_GRID_WORLDWIDE          = 0x10
-        }
-
-        [Flags]
-        public enum ConsoleScreenBufferFlags {
-            CONSOLE_TEXTMODE_BUFFER = 1
-        }
-
-        [Flags]
-        public enum HandlerRoutineCtrlTypes {
+        public enum ControlEvent : uint {
             CTRL_C_EVENT        = 0,
             CTRL_BREAK_EVENT    = 1,
             CTRL_CLOSE_EVENT    = 2,
@@ -63,86 +63,181 @@ namespace PSWinGlue {
         }
 
         [Flags]
-        public enum PseudoConsoleFlags {
-            PSEUDOCONSOLE_INHERIT_CURSOR = 1
+        public enum ControlKeyStates : uint {
+            RIGHT_ALT_PRESSED  = 0x1,
+            LEFT_ALT_PRESSED   = 0x2,
+            RIGHT_CTRL_PRESSED = 0x4,
+            LEFT_CTRL_PRESSED  = 0x8,
+            SHIFT_PRESSED      = 0x10,
+            NUMLOCK_ON         = 0x20,
+            SCROLLLOCK_ON      = 0x40,
+            CAPSLOCK_ON        = 0x80,
+            ENHANCED_KEY       = 0x100
         }
 
         [Flags]
-        public enum StdHandleDevices {
-            STD_INPUT_HANDLE  = -10,
-            STD_OUTPUT_HANDLE = -11,
-            STD_ERROR_HANDLE  = -12
+        public enum DisplayModeGetFlags : uint {
+            CONSOLE_FULLSCREEN          = 0x1,
+            CONSOLE_FULLSCREEN_HARDWARE = 0x2
+        }
+
+        [Flags]
+        public enum DisplayModeSetFlags : uint {
+            CONSOLE_FULLSCREEN_MODE = 0x1,
+            CONSOLE_WINDOWED_MODE   = 0x2
+        }
+
+        [Flags]
+        public enum EventType : ushort {
+            KEY_EVENT                = 0x1,
+            MOUSE_EVENT              = 0x2,
+            WINDOW_BUFFER_SIZE_EVENT = 0x4,
+            MENU_EVENT               = 0x8,
+            FOCUS_EVENT              = 0x10
+        }
+
+        [Flags]
+        public enum HistoryInfoFlags : uint {
+            HISTORY_NO_DUP_FLAG = 0x1
+        }
+
+        [Flags]
+        public enum InputModeFlags : uint {
+            ENABLE_PROCESSED_INPUT        = 0x1,
+            ENABLE_LINE_INPUT             = 0x2,
+            ENABLE_ECHO_INPUT             = 0x4,
+            ENABLE_WINDOW_INPUT           = 0x8,
+            ENABLE_MOUSE_INPUT            = 0x10,
+            ENABLE_INSERT_MODE            = 0x20,
+            ENABLE_QUICK_EDIT_MODE        = 0x40,
+            ENABLE_EXTENDED_FLAGS         = 0x80,
+            ENABLE_AUTO_POSITION          = 0x100,
+            ENABLE_VIRTUAL_TERMINAL_INPUT = 0x200
+        }
+
+        [Flags]
+        public enum MouseButtonStates : uint {
+            FROM_LEFT_1ST_BUTTON_PRESSED = 0x1,
+            RIGHTMOST_BUTTON_PRESSED     = 0x2,
+            FROM_LEFT_2ND_BUTTON_PRESSED = 0x4,
+            FROM_LEFT_3RD_BUTTON_PRESSED = 0x8,
+            FROM_LEFT_4TH_BUTTON_PRESSED = 0x10
+        }
+
+        [Flags]
+        public enum MouseEventFlags : uint {
+            MOUSE_MOVED    = 0x1,
+            DOUBLE_CLICK   = 0x2,
+            MOUSE_WHEELED  = 0x4,
+            MOUSE_HWHEELED = 0x8
+        }
+
+        [Flags]
+        public enum PseudoConsoleFlags : uint {
+            PSEUDOCONSOLE_INHERIT_CURSOR = 0x1
+        }
+
+        [Flags]
+        public enum ScreenBufferFlags : uint {
+            CONSOLE_TEXTMODE_BUFFER = 0x1
+        }
+
+        [Flags]
+        public enum ScreenBufferModeFlags : uint {
+            ENABLE_PROCESSED_OUTPUT            = 0x1,
+            ENABLE_WRAP_AT_EOL_OUTPUT          = 0x2,
+            ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x4,
+            DISABLE_NEWLINE_AUTO_RETURN        = 0x8,
+            ENABLE_LVB_GRID_WORLDWIDE          = 0x10
+        }
+
+        [Flags]
+        public enum SelectionInfoFlags : uint {
+            CONSOLE_NO_SELECTION          = 0x0,
+            CONSOLE_SELECTION_IN_PROGRESS = 0x1,
+            CONSOLE_SELECTION_NOT_EMPTY   = 0x2,
+            CONSOLE_MOUSE_SELECTION       = 0x4,
+            CONSOLE_MOUSE_DOWN            = 0x8
+        }
+
+        [Flags]
+        public enum ShareModeFlags : uint {
+            FILE_SHARE_READ  = 0x1,
+            FILE_SHARE_WRITE = 0x2
+        }
+
+        public enum StandardDevice : uint {
+            STD_INPUT_HANDLE  = 4294967286, // -10
+            STD_OUTPUT_HANDLE = 4294967285, // -11
+            STD_ERROR_HANDLE  = 4294967284  // -12
         }
 
         #endregion
 
         #region Functions
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-        public extern static bool AddConsoleAlias(
-            [MarshalAs(UnmanagedType.LPTStr)]
+        // Introduced in Windows XP
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "AddConsoleAliasW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool AddConsoleAlias(
+            [MarshalAs(UnmanagedType.LPWStr)]
             string Source,
 
-            [MarshalAs(UnmanagedType.LPTStr)]
+            [MarshalAs(UnmanagedType.LPWStr)]
             string Target,
 
-            [MarshalAs(UnmanagedType.LPTStr)]
-            string ExeName
-        );
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-        public extern static bool AddConsoleAlias(
-            [MarshalAs(UnmanagedType.LPTStr)]
-            string Source,
-
-            IntPtr Target,
-
-            [MarshalAs(UnmanagedType.LPTStr)]
+            [MarshalAs(UnmanagedType.LPWStr)]
             string ExeName
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public extern static bool AllocConsole();
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool AllocConsole();
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public extern static bool AttachConsole(
-            int dwProcessId
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool AttachConsole(
+            uint dwProcessId
         );
 
+        // Introduced in Windows 10 version 1809 / Windows Server 2019
         [DllImport("kernel32.dll")]
-        public extern static void ClosePseudoConsole(
+        public static extern void ClosePseudoConsole(
             IntPtr hPC
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public extern static int CreateConsoleScreenBuffer(
-            int dwDesiredAccess,
-            int dwShareMode,
-            IntPtr lpSecurityAttributes,
-            uint dwFlags,
-            IntPtr lpScreenBufferData
+        public static extern IntPtr CreateConsoleScreenBuffer(
+            AccessRightsFlags dwDesiredAccess,
+            ShareModeFlags dwShareMode,
+            IntPtr lpSecurityAttributes, // TODO
+            ScreenBufferFlags dwFlags,
+            IntPtr lpScreenBufferData // NULL
         );
 
+        // Introduced in Windows 10 version 1809 / Windows Server 2019
         [DllImport("kernel32.dll")]
-        public extern static int CreatePseudoConsole(
+        public static extern int CreatePseudoConsole(
             COORD size,
             IntPtr hInput,
             IntPtr hOutput,
-            uint dwFlags,
+            PseudoConsoleFlags dwFlags,
             out IntPtr phPC
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public extern static bool FillConsoleOutputAttribute(
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool FillConsoleOutputAttribute(
             IntPtr hConsoleOutput,
-            ushort wAttribute,
+            CharacterAttributes wAttribute,
             uint nLength,
             COORD dwWriteCoord,
             out uint lpNumberOfAttrsWritten
         );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-        public extern static bool FillConsoleOutputCharacter(
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "FillConsoleOutputCharacterW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool FillConsoleOutputCharacter(
             IntPtr hConsoleOutput,
             char cCharacter,
             uint nLength,
@@ -151,67 +246,83 @@ namespace PSWinGlue {
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public extern static bool FlushConsoleInputBuffer(
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool FlushConsoleInputBuffer(
             IntPtr hConsoleInput
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public extern static bool FreeConsole();
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool FreeConsole();
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public extern static bool GenerateConsoleCtrlEvent(
-            uint dwCtrlEvent,
-            uint dwProcessGroupID
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GenerateConsoleCtrlEvent(
+            ControlEvent dwCtrlEvent,
+            uint dwProcessGroupId
         );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-        public static extern int GetConsoleAlias(
-            [MarshalAs(UnmanagedType.LPTStr)]
+        // Introduced in Windows XP
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetConsoleAliasW", ExactSpelling = true, SetLastError = true)]
+        public static extern uint GetConsoleAlias(
+            [MarshalAs(UnmanagedType.LPWStr)]
             string lpSource,
 
-            System.Text.StringBuilder lpTargetBuffer,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]
+            out char[] lpTargetBuffer,
+
             uint TargetBufferLength,
 
-            [MarshalAs(UnmanagedType.LPTStr)]
+            [MarshalAs(UnmanagedType.LPWStr)]
             string lpExeName
         );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-        public static extern int GetConsoleAliases(
-            System.Text.StringBuilder lpAliasBuffer,
+        // Introduced in Windows XP
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetConsoleAliasesW", ExactSpelling = true, SetLastError = true)]
+        public static extern uint GetConsoleAliases(
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
+            out char[] lpAliasBuffer,
+
             uint AliasBufferLength,
 
-            [MarshalAs(UnmanagedType.LPTStr)]
+            [MarshalAs(UnmanagedType.LPWStr)]
             string lpExeName
         );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
-        public static extern int GetConsoleAliasesLength(
-            [MarshalAs(UnmanagedType.LPTStr)]
+        // Introduced in Windows XP
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetConsoleAliasesLengthW", ExactSpelling = true)]
+        public static extern uint GetConsoleAliasesLength(
+            [MarshalAs(UnmanagedType.LPWStr)]
             string lpExeName
         );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-        public static extern int GetConsoleAliasExes(
-            System.Text.StringBuilder lpExeNameBuffer,
+        // Introduced in Windows XP
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetConsoleAliasExesW", ExactSpelling = true, SetLastError = true)]
+        public static extern uint GetConsoleAliasExes(
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
+            out char[] lpExeNameBuffer,
+
             uint ExeNameBufferLength
         );
 
-        [DllImport("kernel32.dll")]
-        public static extern int GetConsoleAliasExesLength();
+        // Introduced in Windows XP
+        [DllImport("kernel32.dll", EntryPoint = "GetConsoleAliasExesLengthW")]
+        public static extern uint GetConsoleAliasExesLength();
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern int GetConsoleCP();
+        public static extern uint GetConsoleCP();
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetConsoleCursorInfo(
             IntPtr hConsoleOutput,
             out CONSOLE_CURSOR_INFO lpConsoleCursorInfo
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetConsoleDisplayMode(
-            out uint lpModeFlags
+            out DisplayModeGetFlags lpModeFlags
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -221,51 +332,71 @@ namespace PSWinGlue {
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetConsoleHistoryInfo(
             out CONSOLE_HISTORY_INFO lpConsoleHistoryInfo
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetConsoleMode(
             IntPtr hConsoleHandle,
-            out uint lpMode
+            out InputModeFlags lpMode
         );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-        public static extern int GetConsoleOriginalTitle(
-            System.Text.StringBuilder lpConsoleTitle,
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetConsoleMode(
+            IntPtr hConsoleHandle,
+            out ScreenBufferModeFlags lpMode
+        );
+
+        // Introduced in Windows Vista / Windows Server 2008
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetConsoleOriginalTitleW", ExactSpelling = true, SetLastError = true)]
+        public static extern uint GetConsoleOriginalTitle(
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
+            out char[] lpConsoleTitle,
+
             uint nSize
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern int GetConsoleOutputCP();
+        public static extern uint GetConsoleOutputCP();
 
+        // Introduced in Windows XP
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern uint GetConsoleProcessList(
-            out int lpdwProcessList,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
+            out uint[] lpdwProcessList,
+
             uint dwProcessCount
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetConsoleScreenBufferInfo(
             IntPtr hConsoleOutput,
             out CONSOLE_SCREEN_BUFFER_INFO lpConsoleScreenBufferInfo
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetConsoleScreenBufferInfoEx(
             IntPtr hConsoleOutput,
             out CONSOLE_SCREEN_BUFFER_INFOEX lpConsoleScreenBufferInfoEx
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetConsoleSelectionInfo(
             out CONSOLE_SELECTION_INFO lpConsoleSelectionInfo
         );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
-        public static extern int GetConsoleTitle(
-            System.Text.StringBuilder lpConsoleTitle,
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetConsoleTitleW", ExactSpelling = true, SetLastError = true)]
+        public static extern uint GetConsoleTitle(
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
+            out char[] lpConsoleTitle,
+
             uint nSize
         );
 
@@ -273,16 +404,24 @@ namespace PSWinGlue {
         public static extern IntPtr GetConsoleWindow();
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetCurrentConsoleFont(
             IntPtr hConsoleOutput,
+
+            [MarshalAs(UnmanagedType.Bool)]
             bool bMaximumWindow,
+
             out CONSOLE_FONT_INFO lpConsoleCurrentFont
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetCurrentConsoleFontEx(
             IntPtr hConsoleOutput,
+
+            [MarshalAs(UnmanagedType.Bool)]
             bool bMaximumWindow,
+
             out CONSOLE_FONT_INFOEX lpConsoleCurrentFontEx
         );
 
@@ -292,37 +431,36 @@ namespace PSWinGlue {
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetNumberOfConsoleInputEvents(
             IntPtr hConsoleInput,
             out uint lpcNumberOfEvents
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetNumberOfConsoleMouseButtons(
             out uint lpNumberOfMouseButtons
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr GetStdHandle(
-            int nStdHandle
+            StandardDevice nStdHandle
         );
 
-        [DllImport("kernel32.dll")]
-        public static extern bool HandlerRoutine(
-            uint dwCtrlType
-        );
-
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "PeekConsoleInputW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool PeekConsoleInput(
             IntPtr hConsoleInput,
 
-            [MarshalAs(UnmanagedType.LPArray)]
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]
             out INPUT_RECORD[] lpBuffer,
 
             uint nLength,
             out uint lpNumberOfEventsRead
         );
 
+        // Introduced in Windows 10 version 1809 / Windows Server 2019
         [DllImport("kernel32.dll")]
         public static extern int ResizePseudoConsole(
             IntPtr hPC,
@@ -330,103 +468,145 @@ namespace PSWinGlue {
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleActiveScreenBuffer(
             IntPtr hConsoleOutput
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleCP(
             uint wCodePageID
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleCtrlHandler(
-            IntPtr HandlerRoutine,
+            IntPtr HandlerRoutine, // NULL
+
+            [MarshalAs(UnmanagedType.Bool)]
             bool Add
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern bool SetConsoleCursorInfo(
-            IntPtr hConsoleOutput,
-            CONSOLE_CURSOR_INFO lpConsoleCursorInfo
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetConsoleCtrlHandler(
+            HandlerRoutine HandlerRoutine,
+
+            [MarshalAs(UnmanagedType.Bool)]
+            bool Add
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetConsoleCursorInfo(
+            IntPtr hConsoleOutput,
+            ref CONSOLE_CURSOR_INFO lpConsoleCursorInfo
+        );
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleCursorPosition(
             IntPtr hConsoleOutput,
             COORD dwCursorPosition
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleDisplayMode(
             IntPtr hConsoleOutput,
-            uint dwFlags
+            DisplayModeSetFlags dwFlags,
+            IntPtr lpNewScreenBufferDimensions // NULL
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleDisplayMode(
             IntPtr hConsoleOutput,
-            uint dwFlags,
+            DisplayModeSetFlags dwFlags,
             out COORD lpNewScreenBufferDimensions
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleHistoryInfo(
             CONSOLE_HISTORY_INFO lpConsoleHistoryInfo
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleMode(
             IntPtr hConsoleHandle,
-            uint dwMode
+            InputModeFlags dwMode
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetConsoleMode(
+            IntPtr hConsoleHandle,
+            ScreenBufferModeFlags dwMode
+        );
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleOutputCP(
             uint wCodePageID
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleScreenBufferInfoEx(
             IntPtr hConsoleOutput,
             CONSOLE_SCREEN_BUFFER_INFOEX lpConsoleScreenBufferInfoEx
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleScreenBufferSize(
             IntPtr hConsoleOutput,
             COORD dwSize
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleTextAttribute(
             IntPtr hConsoleOutput,
-            ushort wAttributes
+            CharacterAttributes wAttributes
         );
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, ExactSpelling = true, SetLastError = true)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "SetConsoleTitleW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleTitle(
-            [MarshalAs(UnmanagedType.LPTStr)]
+            [MarshalAs(UnmanagedType.LPWStr)]
             string lpConsoleTitle
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleWindowInfo(
             IntPtr hConsoleOutput,
+
+            [MarshalAs(UnmanagedType.Bool)]
             bool bAbsolute,
-            SMALL_RECT lpConsoleWindow
+
+            ref SMALL_RECT lpConsoleWindow
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCurrentConsoleFontEx(
             IntPtr hConsoleOutput,
+
+            [MarshalAs(UnmanagedType.Bool)]
             bool bMaximumWindow,
+
             CONSOLE_FONT_INFOEX lpConsoleCurrentFontEx
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetStdHandle(
-            int nStdHandle,
+            StandardDevice nStdHandle,
             IntPtr hHandle
         );
 
@@ -451,48 +631,62 @@ namespace PSWinGlue {
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        public struct CONSOLE_FONT_INFOEX {
+        public class CONSOLE_FONT_INFOEX {
             public uint cbSize;
             public uint nFont;
             public COORD dwFontSize;
             public uint FontFamily;
             public uint FontWeight;
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+            [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.LPWStr, SizeConst = LF_FACESIZE)]
             public char[] FaceName;
+
+            public CONSOLE_FONT_INFOEX() {
+                cbSize = (uint)Marshal.SizeOf(typeof(CONSOLE_FONT_INFOEX));
+            }
         }
 
-        public struct CONSOLE_HISTORY_INFO {
+        [StructLayout(LayoutKind.Sequential)]
+        public class CONSOLE_HISTORY_INFO {
             public uint cbSize;
             public uint HistoryBufferSize;
             public uint NumberOfHistoryBuffers;
-            public uint dwFlags;
+            public HistoryInfoFlags dwFlags;
+
+            public CONSOLE_HISTORY_INFO() {
+                cbSize = (uint)Marshal.SizeOf(typeof(CONSOLE_HISTORY_INFO));
+            }
         }
 
         public struct CONSOLE_SCREEN_BUFFER_INFO {
             public COORD dwSize;
             public COORD dwCursorPosition;
-            public ushort wAttributes;
+            public CharacterAttributes wAttributes;
             public SMALL_RECT srWindow;
             public COORD dwMaximumWindowSize;
         }
 
-        public struct CONSOLE_SCREEN_BUFFER_INFOEX {
+        [StructLayout(LayoutKind.Sequential)]
+        public class CONSOLE_SCREEN_BUFFER_INFOEX {
             public uint cbSize;
             public COORD dwSize;
             public COORD dwCursorPosition;
-            public ushort wAttributes;
+            public CharacterAttributes wAttributes;
             public SMALL_RECT srWindow;
             public COORD dwMaximumWindowSize;
-            public ushort wPopupAttributes;
+            public ushort wPopupAttributes; // TODO
             public bool bFullscreenSupported;
 
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
             public COLORREF[] ColorTable;
+
+            public CONSOLE_SCREEN_BUFFER_INFOEX() {
+                cbSize = (uint)Marshal.SizeOf(typeof(CONSOLE_SCREEN_BUFFER_INFOEX));
+            }
         }
 
         public struct CONSOLE_SELECTION_INFO {
-            public uint dwFlags;
+            public SelectionInfoFlags dwFlags;
             public COORD dwSelectionAnchor;
             public SMALL_RECT srSelection;
         }
@@ -509,7 +703,7 @@ namespace PSWinGlue {
         [StructLayout(LayoutKind.Explicit)]
         public struct INPUT_RECORD {
             [FieldOffset(0)]
-            public ushort EventType;
+            public EventType EventType;
 
             [FieldOffset(4)]
             public KEY_EVENT_RECORD KeyEvent;
@@ -518,7 +712,7 @@ namespace PSWinGlue {
             public MOUSE_EVENT_RECORD MouseEvent;
 
             [FieldOffset(4)]
-            public WINDOW_BUFFER_SIZE_RECORD WindowBufferSizeRecord;
+            public WINDOW_BUFFER_SIZE_RECORD WindowBufferSizeEvent;
 
             [FieldOffset(4)]
             public MENU_EVENT_RECORD MenuEvent;
@@ -533,8 +727,8 @@ namespace PSWinGlue {
             public ushort wRepeatCount;
             public ushort wVirtualKeyCode;
             public ushort wVirtualScanCode;
-            public char cChar;
-            public uint dwControlKeyState;
+            public char uChar;
+            public ControlKeyStates dwControlKeyState;
         }
 
         public struct MENU_EVENT_RECORD {
@@ -543,9 +737,9 @@ namespace PSWinGlue {
 
         public struct MOUSE_EVENT_RECORD {
             public COORD dwMousePosition;
-            public uint dwButtonState;
-            public uint dwControlKeyState;
-            public uint dwEventFlags;
+            public MouseButtonStates dwButtonState;
+            public ControlKeyStates dwControlKeyState;
+            public MouseEventFlags dwEventFlags;
         }
 
         public struct SMALL_RECT {
