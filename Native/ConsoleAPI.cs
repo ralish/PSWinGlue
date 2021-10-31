@@ -1,7 +1,5 @@
 /*
-    Implements P/Invoke signatures for the majority of the Windows
-    Console API. Still need to add the Read* and Write* functions.
-
+    Implements P/Invoke signatures for the Windows Console API
     https://docs.microsoft.com/en-us/windows/console/console-functions
 */
 
@@ -460,6 +458,70 @@ namespace PSWinGlue {
             out uint lpNumberOfEventsRead
         );
 
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "ReadConsoleW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ReadConsole(
+            IntPtr hConsoleInput,
+
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]
+            out char[] lpBuffer,
+
+            uint nNumberOfCharsToRead,
+            out uint lpNumberOfCharsRead,
+            IntPtr pInputControl // NULL
+        );
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "ReadConsoleW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ReadConsole(
+            IntPtr hConsoleInput,
+
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]
+            out char[] lpBuffer,
+
+            uint nNumberOfCharsToRead,
+            out uint lpNumberOfCharsRead,
+            CONSOLE_READCONSOLE_CONTROL pInputControl
+        );
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "ReadConsoleInputW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ReadConsoleInput(
+            IntPtr hConsoleInput,
+
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]
+            out INPUT_RECORD[] lpBuffer,
+
+            uint nLength,
+            out uint lpNumberOfEventsRead
+        );
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ReadConsoleOutputAttribute(
+            IntPtr hConsoleOutput,
+
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]
+            out CharacterAttributes[] lpAttribute,
+
+            uint nLength,
+            COORD dwReadCoord,
+            out uint lpNumberOfAttrsRead
+        );
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "ReadConsoleOutputCharacterW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ReadConsoleOutputCharacter(
+            IntPtr hConsoleOutput,
+
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]
+            out char[] lpCharacter,
+
+            uint nLength,
+            COORD dwReadCoord,
+            out uint lpNumberOfCharsRead
+        );
+
         // Introduced in Windows 10 version 1809 / Windows Server 2019
         [DllImport("kernel32.dll")]
         public static extern int ResizePseudoConsole(
@@ -630,6 +692,67 @@ namespace PSWinGlue {
             IntPtr hHandle
         );
 
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "WriteConsoleW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool WriteConsole(
+            IntPtr hConsoleOutput,
+
+            [MarshalAs(UnmanagedType.LPWStr)]
+            string lpBuffer,
+
+            uint nNumberOfCharsToWrite,
+            IntPtr lpNumberOfCharsWritten, // NULL
+            IntPtr lpReserved // NULL
+        );
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "WriteConsoleW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool WriteConsole(
+            IntPtr hConsoleOutput,
+
+            [MarshalAs(UnmanagedType.LPWStr)]
+            string lpBuffer,
+
+            uint nNumberOfCharsToWrite,
+            out uint lpNumberOfCharsWritten,
+            IntPtr lpReserved // NULL
+        );
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "WriteConsoleInputW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool WriteConsoleInput(
+            IntPtr hConsoleInput,
+
+            [MarshalAs(UnmanagedType.LPArray)]
+            ref INPUT_RECORD[] lpBuffer,
+
+            uint nLength,
+            out uint lpNumberOfEventsWritten
+        );
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool WriteConsoleOutputAttribute(
+            IntPtr hConsoleOutput,
+            ref CharacterAttributes lpAttribute,
+            uint nLength,
+            COORD dwWriteCoord,
+            out uint lpNumberOfAttrsWritten
+        );
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "WriteConsoleOutputCharacterW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool WriteConsoleOutputCharacter(
+            IntPtr hConsoleOutput,
+
+            [MarshalAs(UnmanagedType.LPWStr)]
+            string lpCharacter,
+
+            uint nLength,
+            COORD dwWriteCoord,
+            out uint lpNumberOfCharsWritten
+        );
+
         #endregion
 
         #region Structures
@@ -681,6 +804,18 @@ namespace PSWinGlue {
 
             public CONSOLE_HISTORY_INFO() {
                 cbSize = (uint)Marshal.SizeOf(typeof(CONSOLE_HISTORY_INFO));
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public class CONSOLE_READCONSOLE_CONTROL {
+            public uint nLength;
+            public uint nInitialChars;
+            public uint dwCtrlWakeupMask;
+            public ControlKeyStates dwControlKeyState;
+
+            public CONSOLE_READCONSOLE_CONTROL() {
+                nLength = (uint)Marshal.SizeOf(typeof(CONSOLE_READCONSOLE_CONTROL));
             }
         }
 
