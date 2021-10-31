@@ -467,6 +467,26 @@ namespace PSWinGlue {
             COORD size
         );
 
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "ScrollConsoleScreenBufferW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ScrollConsoleScreenBuffer(
+            IntPtr hConsoleOutput,
+            ref SMALL_RECT lpScrollRectangle,
+            IntPtr lpClipRectangle, // NULL
+            COORD dwDestinationOrigin,
+            ref CHAR_INFO lpFill
+        );
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "ScrollConsoleScreenBufferW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ScrollConsoleScreenBuffer(
+            IntPtr hConsoleOutput,
+            ref SMALL_RECT lpScrollRectangle,
+            ref SMALL_RECT lpClipRectangle,
+            COORD dwDestinationOrigin,
+            ref CHAR_INFO lpFill
+        );
+
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetConsoleActiveScreenBuffer(
@@ -613,6 +633,12 @@ namespace PSWinGlue {
         #endregion
 
         #region Structures
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct CHAR_INFO {
+            public char Char;
+            public CharacterAttributes Attributes;
+        }
 
         public struct COLORREF {
             public byte R;
