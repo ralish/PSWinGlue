@@ -223,6 +223,13 @@ namespace PSWinGlue {
             out IntPtr phPC
         );
 
+        // Present in Windows headers but undocumented
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "ExpungeConsoleCommandHistoryW", ExactSpelling = true, SetLastError = true)]
+        public static extern void ExpungeConsoleCommandHistory(
+            [MarshalAs(UnmanagedType.LPWStr)]
+            string ExeName
+        );
+
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool FillConsoleOutputAttribute(
@@ -306,6 +313,25 @@ namespace PSWinGlue {
         // Introduced in Windows XP
         [DllImport("kernel32.dll", EntryPoint = "GetConsoleAliasExesLengthW")]
         public static extern uint GetConsoleAliasExesLength();
+
+        // Present in Windows headers but undocumented
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetConsoleCommandHistoryW", ExactSpelling = true, SetLastError = true)]
+        public static extern uint GetConsoleCommandHistory(
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
+            out char[] Commands,
+
+            uint CommandBufferLength,
+
+            [MarshalAs(UnmanagedType.LPWStr)]
+            string ExeName
+        );
+
+        // Present in Windows headers but undocumented
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "GetConsoleCommandHistoryLengthW", ExactSpelling = true, SetLastError = true)]
+        public static extern uint GetConsoleCommandHistoryLength(
+            [MarshalAs(UnmanagedType.LPWStr)]
+            string ExeName
+        );
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern uint GetConsoleCP();
@@ -627,6 +653,16 @@ namespace PSWinGlue {
         public static extern bool SetConsoleMode(
             IntPtr hConsoleHandle,
             ScreenBufferModeFlags dwMode
+        );
+
+        // Present in Windows headers but undocumented
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "SetConsoleNumberOfCommandsW", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetConsoleNumberOfCommands(
+            uint Number,
+
+            [MarshalAs(UnmanagedType.LPWStr)]
+            string ExeName
         );
 
         [DllImport("kernel32.dll", SetLastError = true)]
