@@ -31,7 +31,7 @@
     Removes all Zone.Identifier alternate data streams recursively from files in D:\Library.
 
     .NOTES
-    For bulk removal of all alternate data streams consider using Sysinternals Streams:
+    For bulk removal of alternate data streams consider Sysinternals Streams:
     https://docs.microsoft.com/en-us/sysinternals/downloads/streams
 
     .LINK
@@ -41,6 +41,7 @@
 #Requires -Version 3.0
 
 [CmdletBinding(SupportsShouldProcess)]
+[OutputType()]
 Param(
     [Parameter(Mandatory)]
     [String]$Path,
@@ -54,11 +55,11 @@ Param(
 try {
     $AdsPath = Get-Item -Path $Path
 } catch {
-    throw ('Provided path is invalid: {0}' -f $Path)
+    throw 'Provided path is invalid: {0}' -f $Path
 }
 
 if ($AdsPath -isnot [IO.DirectoryInfo]) {
-    throw ('Expected directory but received: {0}' -f $AdsPath.GetType().Name)
+    throw 'Expected directory but received: {0}' -f $AdsPath.GetType().Name
 }
 
 $Streams = @()

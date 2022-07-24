@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-    Checks Windows domain GPOs and AGPM server controlled GPOs are in sync
+    Check Windows domain GPOs and AGPM server controlled GPOs are in sync
 
     .DESCRIPTION
     Enumerates all GPOs in a Windows domain and controlled GPOs on an AGPM server. Checks are run on the discovered GPOs to determine if the version deployed to the domain matches that on the AGPM server.
@@ -40,6 +40,8 @@
       Required to enumerate AGPM server controlled GPOs.
       This module is provided by the AGPM Client software.
 
+    Not compatible with PowerShell Core as the dependency modules are themselves not compatible.
+
     .LINK
     https://github.com/ralish/PSWinGlue
 #>
@@ -47,6 +49,7 @@
 #Requires -Version 3.0
 
 [CmdletBinding()]
+[OutputType([PSCustomObject[]])]
 Param(
     [ValidateNotNullOrEmpty()]
     [String]$Domain,
@@ -55,26 +58,25 @@ Param(
     [String]$AgpmServer
 )
 
-# Check required modules are present:
-# - GroupPolicy: Provided by Windows Server GPMC feature or Windows Client RSAT feature
-# - Microsoft.Agpm: Included with AGPM Client
+# Check required modules are present
 $RequiredModules = @('GroupPolicy', 'Microsoft.Agpm')
 foreach ($Module in $RequiredModules) {
     Write-Verbose -Message ('Checking module is available: {0}' -f $Module)
-    if (!(Get-Module -Name $Module -ListAvailable)) {
-        throw ('Required module not available: {0}' -f $Module)
+    if (!(Get-Module -Name $Module -ListAvailable -Verbose:$false)) {
+        throw 'Required module not available: {0}' -f $Module
     }
 }
 
+$Results = New-Object -TypeName 'Collections.Generic.List[PSCustomObject]'
+
+$TypeName = 'PSWinGlue.ControlledGpoStatus'
+Update-TypeData -TypeName $TypeName -DefaultDisplayPropertySet @('Name', 'Status') -Force
+
+# Use the "default" AGPM server for the domain
 if ($Domain -and !$AgpmServer) {
     $AgpmServer = 'agpm.{0}' -f $Domain
     Write-Warning -Message ('Using default AGPM server: {0}' -f $AgpmServer)
 }
-
-$Results = New-Object -TypeName Collections.ArrayList
-$TypeName = 'PSWinGlue.ControlledGpoStatus'
-
-Update-TypeData -TypeName $TypeName -DefaultDisplayPropertySet @('Name', 'Status') -Force
 
 # Retrieve domain GPOs
 try {
@@ -145,7 +147,7 @@ foreach ($AgpmGPO in $AgpmGPOs) {
         $Result.Domain = $DomainGPO
     } else {
         $Result.Status = @('Only exists in AGPM')
-        $null = $Results.Add($Result)
+        $Results.Add($Result)
         continue
     }
 
@@ -183,7 +185,7 @@ foreach ($AgpmGPO in $AgpmGPOs) {
         $Result.Status = @('OK')
     }
 
-    $null = $Results.Add($Result)
+    $Results.Add($Result)
 }
 
 # Add any domain GPOs not controlled by AGPM
@@ -201,7 +203,8 @@ foreach ($MissingGPO in $MissingGPOs) {
         Domain     = $MissingGPO
         Status     = @('Only exists in Domain')
     }
-    $null = $Results.Add($Result)
+
+    $Results.Add($Result)
 }
 
-return ($Results | Sort-Object -Property Name)
+return ($Results.ToArray() | Sort-Object -Property Name)

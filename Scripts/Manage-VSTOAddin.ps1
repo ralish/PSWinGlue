@@ -1,16 +1,9 @@
 <#
     .SYNOPSIS
-    Manages a Visual Studio Tools for Office (VSTO) add-in
+    Manage a Visual Studio Tools for Office (VSTO) add-in
 
     .DESCRIPTION
     Launches the installation or uninstallation of a VSTO add-in.
-
-    .PARAMETER Operation
-    The operation to perform on the VSTO add-in.
-
-    Valid operations are:
-    - Install
-    - Uninstall
 
     .PARAMETER ManifestPath
     Path to the manifest file for the VSTO add-in.
@@ -19,6 +12,13 @@
     - A path on the local computer
     - A path to a UNC file share
     - A path to a HTTP(S) site
+
+    .PARAMETER Operation
+    The operation to perform on the VSTO add-in.
+
+    Valid operations are:
+    - Install
+    - Uninstall
 
     .PARAMETER Silent
     Runs the VSTO operation silently.
@@ -48,6 +48,7 @@
 #Requires -Version 3.0
 
 [CmdletBinding()]
+[OutputType()]
 Param(
     [Parameter(Mandatory)]
     [ValidateSet('Install', 'Uninstall')]

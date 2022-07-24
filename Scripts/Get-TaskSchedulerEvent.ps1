@@ -44,6 +44,7 @@
 #Requires -Version 3.0
 
 [CmdletBinding()]
+[OutputType([Diagnostics.Eventing.Reader.EventRecord[]])]
 Param(
     [ValidateNotNullOrEmpty()]
     [Int[]]$EventIds = @(111, 202, 203, 323, 329, 331),
@@ -62,7 +63,7 @@ Param(
 $Events = @(Get-WinEvent -FilterHashtable @{ ProviderName = 'Microsoft-Windows-TaskScheduler'; ID = $EventIds } -MaxEvents $MaxEvents)
 
 if ($IgnoredTasks) {
-    $FilteredEvents = New-Object -TypeName Collections.ArrayList
+    $FilteredEvents = New-Object -TypeName 'Collections.Generic.List[Diagnostics.Eventing.Reader.EventRecord]'
 
     foreach ($Event in $Events) {
         $EventXml = [Xml]$Event.ToXml()
@@ -70,7 +71,7 @@ if ($IgnoredTasks) {
         $TaskName = $EventData | Where-Object Name -EQ 'TaskName'
 
         if ($TaskName -notin $IgnoredTasks) {
-            $null = $FilteredEvents.Add($Event)
+            $FilteredEvents.Add($Event)
         }
     }
 
@@ -81,4 +82,4 @@ if (!$Events) {
     Write-Warning -Message 'No events returned for the given filter.'
 }
 
-return $Events
+return $Events.ToArray()
