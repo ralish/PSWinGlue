@@ -1,28 +1,30 @@
 <#
     .SYNOPSIS
-    Retrieves all registered fonts
+    Retrieve registered fonts
 
     .DESCRIPTION
     Enumerates all registered fonts, performs basic consistency checks, and returns the font name and associated file for each font.
 
     A font is registered and passes consistency checks if it is listed in the registry and the referenced font file is valid.
 
-    Warnings are printed for registered fonts missing their associated font file, and font files missing an associated registration.
+    Warnings are printed for registered fonts missing their associated font file and font files missing an associated registration.
 
     .PARAMETER Scope
     Specifies whether to enumerate system fonts or per-user fonts.
 
-    Support for per-user fonts is only available from Windows 10 1809.
+    Support for per-user fonts is only available from Windows 10 1809 and Windows Server 2019.
 
     The default is system fonts.
 
     .EXAMPLE
     Get-Fonts
 
-    Retrieves all registered system fonts and outputs warnings for any inconsistencies.
+    Retrieves all registered fonts in the system scope and outputs warnings for any inconsistencies.
 
     .NOTES
     Only OpenType (.otf) and TrueType (.ttf) fonts are supported.
+
+    Per-user fonts are only enumerated in the context of the user executing the function.
 
     .LINK
     https://github.com/ralish/PSWinGlue
@@ -31,6 +33,7 @@
 #Requires -Version 3.0
 
 [CmdletBinding()]
+[OutputType([PSCustomObject[]])]
 Param(
     [ValidateSet('System', 'User')]
     [String]$Scope = 'System'
@@ -43,6 +46,7 @@ $ValidExtsRegex = '\.(otf|ttf)$'
 Function Get-Fonts {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     [CmdletBinding()]
+    [OutputType([PSCustomObject[]])]
     Param(
         [ValidateSet('System', 'User')]
         [String]$Scope = 'System'
@@ -53,6 +57,7 @@ Function Get-Fonts {
             $FontsFolder = [Environment]::GetFolderPath('Fonts')
             $FontsRegKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
         }
+
         'User' {
             $FontsFolder = Join-Path -Path ([Environment]::GetFolderPath('LocalApplicationData')) -ChildPath 'Microsoft\Windows\Fonts'
             $FontsRegKey = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
@@ -62,17 +67,17 @@ Function Get-Fonts {
     try {
         $FontFiles = @(Get-ChildItem -Path $FontsFolder -ErrorAction Stop | Where-Object Extension -In $ValidExts)
     } catch {
-        throw ('Unable to enumerate {0} fonts folder: {1}' -f $Scope.ToLower(), $FontsFolder)
+        throw 'Unable to enumerate {0} fonts folder: {1}' -f $Scope.ToLower(), $FontsFolder
     }
 
     try {
         $FontsReg = Get-Item -Path $FontsRegKey -ErrorAction Stop
     } catch {
-        throw ('Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey)
+        throw 'Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey
     }
 
-    $Fonts = New-Object -TypeName Collections.ArrayList
-    $FontsRegFileNames = New-Object -TypeName Collections.ArrayList
+    $Fonts = New-Object -TypeName 'Collections.Generic.List[PSCustomObject]'
+    $FontsRegFileNames = New-Object -TypeName 'Collections.Generic.List[String]'
     foreach ($FontRegName in ($FontsReg.Property | Sort-Object)) {
         $FontRegValue = $FontsReg.GetValue($FontRegName)
 
@@ -95,8 +100,8 @@ Function Get-Fonts {
             File = $FontFiles | Where-Object Name -EQ $FontRegFileName
         }
 
-        $null = $Fonts.Add($Font)
-        $null = $FontsRegFileNames.Add($FontRegFileName)
+        $Fonts.Add($Font)
+        $FontsRegFileNames.Add($FontRegFileName)
     }
 
     foreach ($FontFileName in $FontFiles.Name) {
@@ -105,15 +110,16 @@ Function Get-Fonts {
         }
     }
 
-    return $Fonts
+    return $Fonts.ToArray()
 }
 
+# Windows 10 1809 and Windows Server 2019 introduced support for installing
+# fonts per-user. The corresponding Windows release build number is 17763.
 Function Test-PerUserFontsSupported {
     [CmdletBinding()]
+    [OutputType([Boolean])]
     Param()
 
-    # Windows 10 1809 introduced support for installing fonts per-user. The
-    # corresponding release build number is 17763 (ignoring Insider builds).
     $BuildNumber = [Int](Get-CimInstance -ClassName 'Win32_OperatingSystem' -Verbose:$false).BuildNumber
     if ($BuildNumber -ge 17763) {
         return $true
@@ -123,7 +129,7 @@ Function Test-PerUserFontsSupported {
 }
 
 if ($Scope -eq 'User' -and !(Test-PerUserFontsSupported)) {
-    throw 'Per-user fonts are only supported from Windows 10 1809.'
+    throw 'Per-user fonts are only supported from Windows 10 1809 and Windows Server 2019.'
 }
 
 Get-Fonts @PSBoundParameters

@@ -1,6 +1,40 @@
+<#
+    .SYNOPSIS
+    Uninstalls a specific font by name
+
+    .DESCRIPTION
+    Provides suport for uninstalling fonts by name.
+
+    If the font is in-use and Administrator privileges are present, Windows will be configured to remove it next reboot.
+
+    .PARAMETER Name
+    The name of the font to be uninstalled, as per the font metadata.
+
+    .PARAMETER Scope
+    Specifies whether to uninstall the font from the system-wide or per-user fonts directory.
+
+    Support for per-user fonts is only available from Windows 10 1809 and Windows Server 2019.
+
+    Uninstalling system-wide fonts requires Administrator privileges.
+
+    The default is system-wide.
+
+    .EXAMPLE
+    Uninstall-Font -Name 'Georgia (TrueType)'
+
+    Uninstalls the "Georgia (TrueType)" font from the system-wide fonts directory.
+
+    .NOTES
+    Per-user fonts are only uninstalled in the context of the user executing the function.
+
+    .LINK
+    https://github.com/ralish/PSWinGlue
+#>
+
 #Requires -Version 3.0
 
 [CmdletBinding(SupportsShouldProcess)]
+[OutputType()]
 Param(
     [Parameter(Mandatory)]
     [String]$Name,
@@ -16,6 +50,7 @@ public static extern bool MoveFileEx([MarshalAs(UnmanagedType.LPWStr)] string lp
 
 Function Uninstall-Font {
     [CmdletBinding(SupportsShouldProcess)]
+    [OutputType()]
     Param(
         [Parameter(Mandatory)]
         [String]$Name,
@@ -29,6 +64,7 @@ Function Uninstall-Font {
             $FontsFolder = [Environment]::GetFolderPath('Fonts')
             $FontsRegKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
         }
+
         'User' {
             $FontsFolder = Join-Path -Path ([Environment]::GetFolderPath('LocalApplicationData')) -ChildPath 'Microsoft\Windows\Fonts'
             $FontsRegKey = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
@@ -38,11 +74,11 @@ Function Uninstall-Font {
     try {
         $FontsReg = Get-Item -Path $FontsRegKey -ErrorAction Stop
     } catch {
-        throw ('Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey)
+        throw 'Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey
     }
 
     if ($FontsReg.Property -notcontains $Name) {
-        throw ('Font not registered for {0}: {1}' -f $Scope.ToLower(), $Name)
+        throw 'Font not registered for {0}: {1}' -f $Scope.ToLower(), $Name
     }
 
     $FontRegValue = $FontsReg.GetValue($Name)
@@ -52,7 +88,7 @@ Function Uninstall-Font {
         $FontFilePath = Join-Path -Path $FontsFolder -ChildPath $FontRegValue
     }
 
-    if ($PSCmdlet.ShouldProcess($Name, 'Remove font')) {
+    if ($PSCmdlet.ShouldProcess($Name, 'Uninstall font')) {
         try {
             Write-Debug -Message ('Removing font file: {0}' -f $FontFilePath)
             Remove-Item -Path $FontFilePath -ErrorAction Stop
@@ -64,16 +100,16 @@ Function Uninstall-Font {
 
         if ($RemoveOnReboot) {
             if (!(Test-IsAdministrator)) {
-                throw 'Unable to remove in-use font. Retry as Administrator to remove on next reboot.'
+                throw 'Unable to uninstall in-use font. Retry as Administrator to remove on next reboot.'
             }
 
             if (!('PSWinGlue.UninstallFont' -as [Type])) {
-                Add-Type -Namespace PSWinGlue -Name UninstallFont -MemberDefinition $MoveFileEx
+                Add-Type -Namespace 'PSWinGlue' -Name 'UninstallFont' -MemberDefinition $MoveFileEx
             }
 
             $MOVEFILE_DELAY_UNTIL_REBOOT = 4
             if ([PSWinGlue.UninstallFont]::MoveFileEx($FontFilePath, [IntPtr]::Zero, $MOVEFILE_DELAY_UNTIL_REBOOT) -eq $false) {
-                throw (New-Object -TypeName ComponentModel.Win32Exception)
+                throw (New-Object -TypeName 'ComponentModel.Win32Exception')
             }
         }
 
@@ -84,21 +120,24 @@ Function Uninstall-Font {
 
 Function Test-IsAdministrator {
     [CmdletBinding()]
+    [OutputType([Boolean])]
     Param()
 
     $User = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
     if ($User.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         return $true
     }
+
     return $false
 }
 
+# Windows 10 1809 and Windows Server 2019 introduced support for installing
+# fonts per-user. The corresponding Windows release build number is 17763.
 Function Test-PerUserFontsSupported {
     [CmdletBinding()]
+    [OutputType([Boolean])]
     Param()
 
-    # Windows 10 1809 introduced support for installing fonts per-user. The
-    # corresponding release build number is 17763 (ignoring Insider builds).
     $BuildNumber = [Int](Get-CimInstance -ClassName 'Win32_OperatingSystem' -Verbose:$false).BuildNumber
     if ($BuildNumber -ge 17763) {
         return $true
@@ -108,9 +147,9 @@ Function Test-PerUserFontsSupported {
 }
 
 if ($Scope -eq 'System' -and !(Test-IsAdministrator)) {
-    throw 'Administrator privileges are required to remove system-wide fonts.'
+    throw 'Administrator privileges are required to uninstall system-wide fonts.'
 } elseif ($Scope -eq 'User' -and !(Test-PerUserFontsSupported)) {
-    throw 'Per-user fonts are only supported from Windows 10 1809.'
+    throw 'Per-user fonts are only supported from Windows 10 1809 and Windows Server 2019.'
 }
 
 Uninstall-Font @PSBoundParameters

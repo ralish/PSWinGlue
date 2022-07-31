@@ -1,6 +1,58 @@
+<#
+    .SYNOPSIS
+    Installs a specific font or all fonts from a directory
+
+    .DESCRIPTION
+    Provides support for installation of fonts using either the Windows shell or an emulated approach without shell dependencies.
+
+    The two supported methods of font installation each have their own benefits and drawbacks. See the parameter help for more details.
+
+    .PARAMETER Path
+    The path to an individual font to install, or a directory containing fonts to install.
+
+    .PARAMETER Scope
+    Specifies whether to install fonts system-wide or per-user.
+
+    Support for per-user fonts is only available from Windows 10 1809 and Windows Server 2019.
+
+    Installing system-wide fonts requires Administrator privileges.
+
+    The default is system-wide.
+
+    .PARAMETER Method
+    Specifies the method to use for installation of fonts.
+
+    Two methods are currently supported:
+    - Manual:   An approach which emulates the behaviour of the Windows shell (default)
+    - Shell:    Directly use the Windows shell facilities for installing fonts
+
+    The Manual approach is the default and should be safe to use in unattended scenarios. Although untested, it should be compatible with Server Core installations.
+
+    The Shell approach is not safe to use in unattended scenarios as in some instances it may present interactive prompts (e.g. overwriting an existing font).
+
+    .EXAMPLE
+    Install-Fonts -Path C:\Fonts
+
+    Installs all fonts from the "C:\Fonts" directory. Fonts will be installed system-wide using the "Manual" method.
+
+    .EXAMPLE
+    Install-Fonts -Path $HOME\Fonts -Scope User -Method Shell
+
+    Installs all fonts from the "Fonts" folder in the user's home directory. Fonts will be installed only for the running user using the "Shell" method.
+
+    .NOTES
+    Only OpenType (.otf) and TrueType (.ttf) fonts are supported.
+
+    Per-user fonts are only installed in the context of the user executing the function.
+
+    .LINK
+    https://github.com/ralish/PSWinGlue
+#>
+
 #Requires -Version 4.0
 
 [CmdletBinding(SupportsShouldProcess)]
+[OutputType()]
 Param(
     [ValidateNotNullOrEmpty()]
     [String]$Path,
@@ -19,6 +71,7 @@ $ValidExtsRegex = '\.(otf|ttf)$'
 Function Get-Fonts {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     [CmdletBinding()]
+    [OutputType([PSCustomObject[]])]
     Param(
         [ValidateSet('System', 'User')]
         [String]$Scope = 'System'
@@ -29,6 +82,7 @@ Function Get-Fonts {
             $FontsFolder = [Environment]::GetFolderPath('Fonts')
             $FontsRegKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
         }
+
         'User' {
             $FontsFolder = Join-Path -Path ([Environment]::GetFolderPath('LocalApplicationData')) -ChildPath 'Microsoft\Windows\Fonts'
             $FontsRegKey = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
@@ -38,17 +92,17 @@ Function Get-Fonts {
     try {
         $FontFiles = @(Get-ChildItem -Path $FontsFolder -ErrorAction Stop | Where-Object Extension -In $ValidExts)
     } catch {
-        throw ('Unable to enumerate {0} fonts folder: {1}' -f $Scope.ToLower(), $FontsFolder)
+        throw 'Unable to enumerate {0} fonts folder: {1}' -f $Scope.ToLower(), $FontsFolder
     }
 
     try {
         $FontsReg = Get-Item -Path $FontsRegKey -ErrorAction Stop
     } catch {
-        throw ('Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey)
+        throw 'Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey
     }
 
-    $Fonts = New-Object -TypeName Collections.ArrayList
-    $FontsRegFileNames = New-Object -TypeName Collections.ArrayList
+    $Fonts = New-Object -TypeName 'Collections.Generic.List[PSCustomObject]'
+    $FontsRegFileNames = New-Object -TypeName 'Collections.Generic.List[String]'
     foreach ($FontRegName in ($FontsReg.Property | Sort-Object)) {
         $FontRegValue = $FontsReg.GetValue($FontRegName)
 
@@ -71,8 +125,8 @@ Function Get-Fonts {
             File = $FontFiles | Where-Object Name -EQ $FontRegFileName
         }
 
-        $null = $Fonts.Add($Font)
-        $null = $FontsRegFileNames.Add($FontRegFileName)
+        $Fonts.Add($Font)
+        $FontsRegFileNames.Add($FontRegFileName)
     }
 
     foreach ($FontFileName in $FontFiles.Name) {
@@ -81,14 +135,15 @@ Function Get-Fonts {
         }
     }
 
-    return $Fonts
+    return $Fonts.ToArray()
 }
 
 Function Install-FontManual {
     [CmdletBinding(SupportsShouldProcess)]
+    [OutputType()]
     Param(
         [Parameter(Mandatory)]
-        [IO.FileInfo[]]$Fonts,
+        [Collections.Generic.List[IO.FileInfo]]$Fonts,
 
         [ValidateSet('System', 'User')]
         [String]$Scope = 'System'
@@ -100,6 +155,7 @@ Function Install-FontManual {
                 $FontsFolder = [Environment]::GetFolderPath('Fonts')
                 $FontsRegKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
             }
+
             'User' {
                 $FontsFolder = Join-Path -Path ([Environment]::GetFolderPath('LocalApplicationData')) -ChildPath 'Microsoft\Windows\Fonts'
                 $FontsRegKey = 'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
@@ -114,17 +170,17 @@ Function Install-FontManual {
         try {
             $FontsReg = Get-Item -Path $FontsRegKey -ErrorAction Stop
         } catch {
-            throw ('Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey)
+            throw 'Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey
         }
 
-        Add-Type -AssemblyName PresentationCore -ErrorAction Stop
+        Add-Type -AssemblyName 'PresentationCore' -ErrorAction Stop
     }
 
     Process {
         foreach ($Font in $Fonts) {
-            $FontUri = New-Object -TypeName Uri -ArgumentList $Font.FullName
+            $FontUri = New-Object -TypeName 'Uri' -ArgumentList $Font.FullName
             try {
-                $GlyphTypeface = New-Object -TypeName Windows.Media.GlyphTypeface -ArgumentList $FontUri
+                $GlyphTypeface = New-Object -TypeName 'Windows.Media.GlyphTypeface' -ArgumentList $FontUri
             } catch {
                 Write-Error -Message ('Unable to import font: {0}' -f $Font.Name)
                 continue
@@ -179,9 +235,10 @@ Function Install-FontManual {
 
 Function Install-FontShell {
     [CmdletBinding(SupportsShouldProcess)]
+    [OutputType()]
     Param(
         [Parameter(Mandatory)]
-        [IO.FileInfo[]]$Fonts
+        [Collections.Generic.List[IO.FileInfo]]$Fonts
     )
 
     Begin {
@@ -195,22 +252,18 @@ Function Install-FontShell {
         $FOF_NOCONFIRMATION = 16
         $FOF_NOERRORUI = 1024
         $FOF_NOCOPYSECURITYATTRIBS = 2048
+        $CopyOptions = $FOF_SILENT + $FOF_NOCONFIRMATION + $FOF_NOERRORUI + $FOF_NOCOPYSECURITYATTRIBS
+
+        $ShellApp = $null
+        $FontsFolder = $null
 
         try {
-            $ShellApp = New-Object -ComObject Shell.Application
-        } catch {
-            throw $_
-        }
-
-        try {
+            $ShellApp = New-Object -ComObject 'Shell.Application'
             $FontsFolder = $ShellApp.NameSpace($ssfFONTS)
         } catch {
+            if ($ShellApp) { $null = [Runtime.InteropServices.Marshal]::ReleaseComObject($ShellApp) }
             throw $_
-        } finally {
-            $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ShellApp)
         }
-
-        $CopyOptions = $FOF_SILENT + $FOF_NOCONFIRMATION + $FOF_NOERRORUI + $FOF_NOCOPYSECURITYATTRIBS
     }
 
     Process {
@@ -223,28 +276,31 @@ Function Install-FontShell {
     }
 
     End {
-        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($FontsFolder)
-        $null = [Runtime.InteropServices.Marshal]::FinalReleaseComObject($ShellApp)
+        $null = [Runtime.InteropServices.Marshal]::ReleaseComObject($FontsFolder)
+        $null = [Runtime.InteropServices.Marshal]::ReleaseComObject($ShellApp)
     }
 }
 
 Function Test-IsAdministrator {
     [CmdletBinding()]
+    [OutputType([Boolean])]
     Param()
 
     $User = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
     if ($User.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         return $true
     }
+
     return $false
 }
 
+# Windows 10 1809 and Windows Server 2019 introduced support for installing
+# fonts per-user. The corresponding Windows release build number is 17763.
 Function Test-PerUserFontsSupported {
     [CmdletBinding()]
+    [OutputType([Boolean])]
     Param()
 
-    # Windows 10 1809 introduced support for installing fonts per-user. The
-    # corresponding release build number is 17763 (ignoring Insider builds).
     $BuildNumber = [Int](Get-CimInstance -ClassName 'Win32_OperatingSystem' -Verbose:$false).BuildNumber
     if ($BuildNumber -ge 17763) {
         return $true
@@ -261,11 +317,11 @@ if ($Scope -eq 'System') {
         throw 'Installing fonts system-wide via the Shell API is unsupported from Windows 10 1809.'
     }
 } elseif (!(Test-PerUserFontsSupported)) {
-    throw 'Per-user fonts are only supported from Windows 10 1809.'
+    throw 'Per-user fonts are only supported from Windows 10 1809 and Windows Server 2019.'
 }
 
 # Use script location if no path provided
-if (!$PSBoundParameters.ContainsKey('Path')) {
+if (!$Path) {
     $Path = $PSScriptRoot
 }
 
@@ -273,7 +329,7 @@ if (!$PSBoundParameters.ContainsKey('Path')) {
 try {
     $SourceFontPath = Get-Item -Path $Path -ErrorAction Stop
 } catch {
-    throw ('Provided path is invalid: {0}' -f $Path)
+    throw 'Provided path is invalid: {0}' -f $Path
 }
 
 # Enumerate fonts to be installed
@@ -281,16 +337,16 @@ if ($SourceFontPath -is [IO.DirectoryInfo]) {
     $SourceFonts = @(Get-ChildItem -Path $SourceFontPath | Where-Object Extension -In $ValidExts)
 
     if (!$SourceFonts) {
-        throw ('Unable to locate any fonts in provided directory: {0}' -f $SourceFontPath)
+        throw 'Unable to locate any fonts in provided directory: {0}' -f $SourceFontPath
     }
 } elseif ($SourceFontPath -is [IO.FileInfo]) {
     if ($SourceFontPath.Extension -notin $ValidExts) {
-        throw ('Provided file does not appear to be a valid font: {0}' -f $SourceFontPath)
+        throw 'Provided file does not appear to be a valid font: {0}' -f $SourceFontPath
     }
 
     $SourceFonts = @($SourceFontPath)
 } else {
-    throw ('Expected directory or file but received: {0}' -f $SourceFontPath.GetType().Name)
+    throw 'Expected directory or file but received: {0}' -f $SourceFontPath.GetType().Name
 }
 
 # Retrieve installed fonts
@@ -299,16 +355,16 @@ $InstalledFonts = Get-Fonts -Scope $Scope
 # Calculate the hash of each installed font
 foreach ($Font in $InstalledFonts) {
     $FontHash = Get-FileHash -Path $Font.File.FullName
-    $Font | Add-Member -MemberType NoteProperty -Name Hash -Value $FontHash.Hash
+    $Font | Add-Member -MemberType NoteProperty -Name 'Hash' -Value $FontHash.Hash
 }
 
 # Filter out any already installed fonts
-$InstallFonts = New-Object -TypeName Collections.ArrayList
+$InstallFonts = New-Object -TypeName 'Collections.Generic.List[IO.FileInfo]'
 foreach ($Font in $SourceFonts) {
     $FontHash = Get-FileHash -Path $Font.FullName
 
     if ($FontHash.Hash -notin $InstalledFonts.Hash) {
-        $null = $InstallFonts.Add($Font)
+        $InstallFonts.Add($Font)
     } else {
         Write-Verbose -Message ('Font is already installed: {0}' -f $Font.Name)
     }
