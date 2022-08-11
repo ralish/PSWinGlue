@@ -49,6 +49,7 @@
     https://github.com/ralish/PSWinGlue
 #>
 
+# Get-FileHash shipped with PowerShell 4.0
 #Requires -Version 4.0
 
 [CmdletBinding(SupportsShouldProcess)]
