@@ -34,7 +34,7 @@
 #Requires -Version 3.0
 
 [CmdletBinding(SupportsShouldProcess)]
-[OutputType()]
+[OutputType([Void])]
 Param(
     [Parameter(Mandatory)]
     [String]$Name,
@@ -50,7 +50,7 @@ if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform 
 
 Function Uninstall-Font {
     [CmdletBinding(SupportsShouldProcess)]
-    [OutputType()]
+    [OutputType([Void])]
     Param(
         [Parameter(Mandatory)]
         [String]$Name,

@@ -53,7 +53,7 @@
 #Requires -Version 4.0
 
 [CmdletBinding(SupportsShouldProcess)]
-[OutputType()]
+[OutputType([Void])]
 Param(
     [ValidateNotNullOrEmpty()]
     [String]$Path,
@@ -151,7 +151,7 @@ Function Get-Fonts {
 
 Function Install-FontManual {
     [CmdletBinding(SupportsShouldProcess)]
-    [OutputType()]
+    [OutputType([Void])]
     Param(
         [Parameter(Mandatory)]
         [Collections.Generic.List[IO.FileInfo]]$Fonts,
@@ -246,7 +246,7 @@ Function Install-FontManual {
 
 Function Install-FontShell {
     [CmdletBinding(SupportsShouldProcess)]
-    [OutputType()]
+    [OutputType([Void])]
     Param(
         [Parameter(Mandatory)]
         [Collections.Generic.List[IO.FileInfo]]$Fonts

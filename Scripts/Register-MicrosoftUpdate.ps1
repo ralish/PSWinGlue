@@ -24,7 +24,7 @@
 #Requires -Version 3.0
 
 [CmdletBinding()]
-[OutputType()]
+[OutputType([Void])]
 Param()
 
 $PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0

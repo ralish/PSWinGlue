@@ -41,7 +41,7 @@
 #Requires -Version 3.0
 
 [CmdletBinding()]
-[OutputType()]
+[OutputType([Void])]
 Param(
     [Parameter(Mandatory)]
     [String]$ManifestPath,
