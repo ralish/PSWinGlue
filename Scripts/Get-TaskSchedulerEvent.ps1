@@ -65,7 +65,17 @@ if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform 
     throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
 }
 
-$Events = @(Get-WinEvent -FilterHashtable @{ ProviderName = 'Microsoft-Windows-TaskScheduler'; ID = $EventIds } -MaxEvents $MaxEvents)
+$WinEventParams = @{
+    FilterHashtable = @{
+        ProviderName = 'Microsoft-Windows-TaskScheduler'
+        ID           = $EventIds
+    }
+
+    MaxEvents       = $MaxEvents
+    ErrorAction     = 'Stop'
+}
+
+$Events = [Collections.Generic.List[Diagnostics.Eventing.Reader.EventRecord]]@(Get-WinEvent @WinEventParams)
 
 if ($IgnoredTasks) {
     $FilteredEvents = New-Object -TypeName 'Collections.Generic.List[Diagnostics.Eventing.Reader.EventRecord]'
@@ -81,10 +91,6 @@ if ($IgnoredTasks) {
     }
 
     $Events = $FilteredEvents
-}
-
-if (!$Events) {
-    Write-Warning -Message 'No events returned for the given filter.'
 }
 
 return $Events.ToArray()
