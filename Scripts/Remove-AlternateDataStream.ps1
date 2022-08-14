@@ -82,4 +82,12 @@ if (!$Streams) {
     throw 'No alternate data streams to remove were specified.'
 }
 
-Get-ChildItem -Path $AdsPath -Recurse:$Recurse -File | Remove-Item -Stream $Streams
+Get-ChildItem -Path $AdsPath -Recurse:$Recurse -File | ForEach-Object {
+    try {
+        $_ | Remove-Item -Stream $Streams
+    } catch {
+        switch -Regex ($PSItem.FullyQualifiedErrorId) {
+            '^AlternateDataStreamNotFound,' { }
+        }
+    }
+}
