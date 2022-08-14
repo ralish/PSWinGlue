@@ -36,7 +36,7 @@
     Installs all fonts from the "C:\Fonts" directory. Fonts will be installed system-wide using the "Manual" method.
 
     .EXAMPLE
-    Install-Fonts -Path $HOME\Fonts -Scope User -Method Shell
+    Install-Fonts -Path "$HOME\Fonts" -Scope User -Method Shell
 
     Installs all fonts from the "Fonts" folder in the user's home directory. Fonts will be installed only for the running user using the "Shell" method.
 

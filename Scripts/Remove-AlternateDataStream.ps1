@@ -26,9 +26,9 @@
     This stream indicates the origin of a downloaded file and is typically used to trigger additional prompts or protections on opening "untrusted" files.
 
     .EXAMPLE
-    Remove-AlternateDataStreams -Path D:\Library -ZoneIdentifier -Recurse
+    Remove-AlternateDataStreams -Path 'D:\Library' -ZoneIdentifier -Recurse
 
-    Removes all Zone.Identifier alternate data streams recursively from files in D:\Library.
+    Removes all Zone.Identifier alternate data streams recursively from files in "D:\Library".
 
     .NOTES
     For bulk removal of alternate data streams consider Sysinternals Streams:

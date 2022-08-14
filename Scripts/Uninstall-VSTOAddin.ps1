@@ -17,7 +17,7 @@
     Runs the VSTO operation silently.
 
     .EXAMPLE
-    Uninstall-VSTOAddin -ManifestPath "https://example.s3.amazonaws.com/live/MyAddin.vsto" -Silent
+    Uninstall-VSTOAddin -ManifestPath 'https://example.s3.amazonaws.com/live/MyAddin.vsto' -Silent
 
     Silently uninstalls the VSTO add-in described by the provided manifest.
 

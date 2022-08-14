@@ -17,7 +17,7 @@
     Runs the VSTO operation silently.
 
     .EXAMPLE
-    Install-VSTOAddin -ManifestPath "https://example.s3.amazonaws.com/live/MyAddin.vsto" -Silent
+    Install-VSTOAddin -ManifestPath 'https://example.s3.amazonaws.com/live/MyAddin.vsto' -Silent
 
     Silently installs the VSTO add-in described by the provided manifest.
 
