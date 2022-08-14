@@ -65,6 +65,11 @@ Param(
     [String]$Method = 'Manual'
 )
 
+$PowerShellMin = New-Object -TypeName Version -ArgumentList 4, 0
+if ($PSVersionTable.PSVersion -lt $PowerShellMin) {
+    throw '{0} requires at least PowerShell {1}.' -f $MyInvocation.MyCommand.Name, $PowerShellMin
+}
+
 $PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
 if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
     throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
