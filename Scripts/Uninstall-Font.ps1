@@ -48,11 +48,6 @@ if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform 
     throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
 }
 
-$MoveFileEx = @'
-[DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "MoveFileExW", ExactSpelling = true, SetLastError = true)]
-public static extern bool MoveFileEx([MarshalAs(UnmanagedType.LPWStr)] string lpExistingFileName, IntPtr lpNewFileName, uint dwFlags);
-'@
-
 Function Uninstall-Font {
     [CmdletBinding(SupportsShouldProcess)]
     [OutputType()]
@@ -109,6 +104,11 @@ Function Uninstall-Font {
             }
 
             if (!('PSWinGlue.UninstallFont' -as [Type])) {
+                $MoveFileEx = @'
+[DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "MoveFileExW", ExactSpelling = true, SetLastError = true)]
+public static extern bool MoveFileEx([MarshalAs(UnmanagedType.LPWStr)] string lpExistingFileName, IntPtr lpNewFileName, uint dwFlags);
+'@
+
                 Add-Type -Namespace 'PSWinGlue' -Name 'UninstallFont' -MemberDefinition $MoveFileEx
             }
 
