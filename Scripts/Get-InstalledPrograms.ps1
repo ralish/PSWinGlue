@@ -1,46 +1,89 @@
+<#
+    .SYNOPSIS
+    Retrieves installed programs
+
+    .DESCRIPTION
+    Enumerates all installed programs for the system and current user.
+
+    The results should be nearly identical to those displayed via the "Programs and Features" view of the Windows Control Panel.
+
+    For the "Apps & features" pane of the Settings app the results will be a subset of those displayed (see the Notes section).
+
+    .EXAMPLE
+    Get-InstalledPrograms
+
+    Retrieves all programs installed system-wide or for the current user.
+
+    .NOTES
+    Only native Windows applications which register an uninstaller are displayed.
+
+    Microsoft Store apps are not currently enumerated, which the "Apps & features" pane of the Settings app does display.
+
+    The available information displayed for each program is expected to vary, as each program is itself responsible for recording it.
+
+    If the installation date is not explicitly recorded by an installed program, we attempt to derive it based on the last write time of the registry key.
+
+    There is no documented API for enumerating installed native Windows applications, so an approach based off reverse engineering Microsoft's implementation is used.
+
+    There are three registry keys which are inspected to populate the list of installed programs:
+    - System-wide in native bitness
+      HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall
+    - System-wide under the 32-bit emulation layer (64-bit Windows only)
+      HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall
+    - Current-user (any bitness)
+      HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall
+
+    .LINK
+    https://github.com/ralish/PSWinGlue
+#>
+
 #Requires -Version 3.0
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingEmptyCatchBlock', '')]
 [CmdletBinding()]
+[OutputType([PSCustomObject[]])]
 Param()
 
-$RegQueryInfoKey = @'
-[DllImport("advapi32.dll", EntryPoint = "RegQueryInfoKeyW")]
-public static extern int RegQueryInfoKey(Microsoft.Win32.SafeHandles.SafeRegistryHandle hKey,
-                                         IntPtr lpClass,
-                                         IntPtr lpcchClass,
-                                         IntPtr lpReserved,
-                                         IntPtr lpcSubKeys,
-                                         IntPtr lpcbMaxSubKeyLen,
-                                         IntPtr lpcbMaxClassLen,
-                                         IntPtr lpcValues,
-                                         IntPtr lpcbMaxValueNameLen,
-                                         IntPtr lpcbMaxValueLen,
-                                         IntPtr lpcbSecurityDescriptor,
-                                         out UInt64 lpftLastWriteTime);
-'@
+$PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
+if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
+    throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
+}
 
 if (!('PSWinGlue.GetInstalledPrograms' -as [Type])) {
+    $RegQueryInfoKey = @'
+[DllImport("advapi32.dll", EntryPoint = "RegQueryInfoKeyW")]
+public static extern int RegQueryInfoKey(Microsoft.Win32.SafeHandles.SafeRegistryHandle hKey,
+                                            IntPtr lpClass,
+                                            IntPtr lpcchClass,
+                                            IntPtr lpReserved,
+                                            IntPtr lpcSubKeys,
+                                            IntPtr lpcbMaxSubKeyLen,
+                                            IntPtr lpcbMaxClassLen,
+                                            IntPtr lpcValues,
+                                            IntPtr lpcbMaxValueNameLen,
+                                            IntPtr lpcbMaxValueLen,
+                                            IntPtr lpcbSecurityDescriptor,
+                                            out UInt64 lpftLastWriteTime);
+'@
+
     $AddTypeParams = @{}
 
     if ($PSVersionTable['PSEdition'] -eq 'Core') {
         $AddTypeParams['ReferencedAssemblies'] = 'Microsoft.Win32.Registry'
     }
 
-    Add-Type -Namespace PSWinGlue -Name GetInstalledPrograms -MemberDefinition $RegQueryInfoKey @AddTypeParams
+    Add-Type -Namespace 'PSWinGlue' -Name 'GetInstalledPrograms' -MemberDefinition $RegQueryInfoKey @AddTypeParams
 }
 
-$Results = New-Object -TypeName Collections.ArrayList
 $TypeName = 'PSWinGlue.InstalledProgram'
-
 Update-TypeData -TypeName $TypeName -DefaultDisplayPropertySet @('Name', 'Publisher', 'Version', 'Scope') -Force
 
-# Programs installed system-wide in native bitness
+# System-wide in native bitness
 $ComputerNativeRegPath = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall'
-# Programs installed only under the current-user (any bitness)
-$UserRegPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall'
-# Programs installed system-wide under the 32-bit emulation layer (64-bit Windows only)
+# System-wide under the 32-bit emulation layer (64-bit Windows only)
 $ComputerWow64RegPath = 'HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall'
+# Current-user (any bitness)
+$UserRegPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall'
 
 # Retrieve all installed programs from available keys
 $UninstallKeys = Get-ChildItem -Path $ComputerNativeRegPath
@@ -52,6 +95,7 @@ if (Test-Path -Path $UserRegPath -PathType Container) {
 }
 
 # Filter out all the uninteresting installation results
+$Results = New-Object -TypeName 'Collections.Generic.List[PSCustomObject]'
 foreach ($UninstallKey in $UninstallKeys) {
     $Program = Get-ItemProperty -Path $UninstallKey.PSPath
 
@@ -60,9 +104,7 @@ foreach ($UninstallKey in $UninstallKeys) {
         continue
     }
 
-    # Ensure the program either:
-    # - Has an uninstall command
-    # - Is marked as non-removable
+    # Skip any program without an uninstall command which is not marked non-removable
     if (!($Program.PSObject.Properties['UninstallString'] -or ($Program.PSObject.Properties['NoRemove'] -and $Program.NoRemove -eq 1))) {
         continue
     }
@@ -99,12 +141,12 @@ foreach ($UninstallKey in $UninstallKeys) {
         $Result.Publisher = $Program.Publisher
     }
 
-    # Try and convert the InstallDate value to a DateTime
+    # Try and convert any InstallDate value to a DateTime
     if ($Program.PSObject.Properties['InstallDate']) {
         $RegInstallDate = $Program.InstallDate
         if ($RegInstallDate -match '^[0-9]{8}') {
             try {
-                $Result.InstallDate = New-Object -TypeName DateTime -ArgumentList $RegInstallDate.Substring(0, 4), $RegInstallDate.Substring(4, 2), $RegInstallDate.Substring(6, 2)
+                $Result.InstallDate = New-Object -TypeName 'DateTime' -ArgumentList $RegInstallDate.Substring(0, 4), $RegInstallDate.Substring(4, 2), $RegInstallDate.Substring(6, 2)
             } catch { }
         }
 
@@ -116,7 +158,7 @@ foreach ($UninstallKey in $UninstallKeys) {
     # Fall back to the last write time of the registry key
     if (!$Result.InstallDate) {
         [UInt64]$RegLastWriteTime = 0
-        $Status = [PSWinGlue.GetInstalledPrograms]::RegQueryInfoKey($UninstallKey.Handle, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, [ref]$RegLastWriteTime)
+        $Status = [PSWinGlue.GetInstalledPrograms]::RegQueryInfoKey($UninstallKey.Handle, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, [ref]$RegLastWriteTime)
 
         if ($Status -eq 0) {
             $Result.InstallDate = [DateTime]::FromFileTime($RegLastWriteTime)
@@ -147,7 +189,7 @@ foreach ($UninstallKey in $UninstallKeys) {
         $Result.Scope = 'User'
     }
 
-    $null = $Results.Add($Result)
+    $Results.Add($Result)
 }
 
-return ($Results | Sort-Object -Property Name)
+return ($Results.ToArray() | Sort-Object -Property Name)
