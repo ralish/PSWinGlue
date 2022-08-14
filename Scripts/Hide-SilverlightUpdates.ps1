@@ -55,19 +55,17 @@ try {
         $SearchResults = $UpdateSearcher.Search('IsHidden=0 And IsInstalled=0')
         $SearchUpdates = $SearchResults.Updates
 
-        if ($SearchUpdates.Count -gt 0) {
-            for ($i = 0; $i -lt $SearchUpdates.Count; $i++) {
-                $SearchUpdate = $SearchUpdates[$i]
+        for ($i = 0; $i -lt $SearchUpdates.Count; $i++) {
+            $SearchUpdate = $SearchUpdates.Item($i)
 
-                if ($SearchUpdate.Title -match 'Silverlight') {
-                    $UpdatesFound = $true
+            if ($SearchUpdate.Title -match 'Silverlight') {
+                $UpdatesFound = $true
 
-                    Write-Verbose -Message ('Hiding update: {0}' -f $Update.Title)
-                    $Update.IsHidden = $true
-                }
-
-                $null = [Runtime.InteropServices.Marshal]::ReleaseComObject($SearchUpdate)
+                Write-Verbose -Message ('Hiding update: {0}' -f $Update.Title)
+                $Update.IsHidden = $true
             }
+
+            $null = [Runtime.InteropServices.Marshal]::ReleaseComObject($SearchUpdate)
         }
 
         $null = [Runtime.InteropServices.Marshal]::ReleaseComObject($SearchUpdates)
