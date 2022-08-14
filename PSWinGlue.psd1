@@ -74,12 +74,13 @@
         'Hide-SilverlightUpdates',
         'Install-ExcelAddin',
         'Install-Font',
-        'Manage-VSTOAddin',
+        'Install-VSTOAddin',
         'Register-MicrosoftUpdate',
         'Remove-AlternateDataStream',
         'Set-SharedPCMode',
         'Uninstall-Font',
         'Uninstall-ObsoleteModule',
+        'Uninstall-VSTOAddin',
         'Update-GitRepository',
         'Update-OneDriveSetup'
     )

@@ -1,9 +1,9 @@
 <#
     .SYNOPSIS
-    Manage a Visual Studio Tools for Office (VSTO) add-in
+    Uninstall a Visual Studio Tools for Office (VSTO) add-in
 
     .DESCRIPTION
-    Launches the installation or uninstallation of a VSTO add-in.
+    Launches the uninstallation of a VSTO add-in.
 
     .PARAMETER ManifestPath
     Path to the manifest file for the VSTO add-in.
@@ -13,20 +13,13 @@
     - A path to a UNC file share
     - A path to a HTTP(S) site
 
-    .PARAMETER Operation
-    The operation to perform on the VSTO add-in.
-
-    Valid operations are:
-    - Install
-    - Uninstall
-
     .PARAMETER Silent
     Runs the VSTO operation silently.
 
     .EXAMPLE
-    Manage-VSTOAddin -Operation Install -ManifestPath "https://example.s3.amazonaws.com/live/MyAddin.vsto" -Silent
+    Uninstall-VSTOAddin -ManifestPath "https://example.s3.amazonaws.com/live/MyAddin.vsto" -Silent
 
-    Silently installs the VSTO add-in described by the provided manifest.
+    Silently uninstalls the VSTO add-in described by the provided manifest.
 
     .NOTES
     The Visual Studio 2010 Tools for Office Runtime, which includes VSTOInstaller.exe, must be present on the system.
@@ -51,10 +44,6 @@
 [OutputType()]
 Param(
     [Parameter(Mandatory)]
-    [ValidateSet('Install', 'Uninstall')]
-    [String]$Operation,
-
-    [Parameter(Mandatory)]
     [String]$ManifestPath,
 
     [Switch]$Silent
@@ -66,7 +55,7 @@ if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform 
 }
 
 $VstoInstaller = '{0}\Microsoft Shared\VSTO\10.0\VSTOInstaller.exe' -f $env:CommonProgramFiles
-$VstoArguments = @(('/{0}' -f $Operation), ('"{0}"' -f $ManifestPath))
+$VstoArguments = @('/Uninstall', ('"{0}"' -f $ManifestPath))
 
 if ($Silent) {
     $VstoArguments += '/Silent'
@@ -76,7 +65,7 @@ if (!(Test-Path -Path $VstoInstaller)) {
     throw 'VSTO Installer not present at: {0}' -f $VstoInstaller
 }
 
-Write-Verbose -Message ('{0}ing VSTO add-in with arguments: {1}' -f $Operation, [String]::Join(' ', $VstoArguments))
+Write-Verbose -Message ('Uninstalling VSTO add-in with arguments: {0}', [String]::Join(' ', $VstoArguments))
 $VstoProcess = Start-Process -FilePath $VstoInstaller -ArgumentList $VstoArguments -Wait -PassThru
 if ($VstoProcess.ExitCode -ne 0) {
     throw 'VSTO Installer failed with code: {0}' -f $VstoProcess.ExitCode
