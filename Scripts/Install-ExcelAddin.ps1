@@ -101,7 +101,7 @@ try {
     $ExcelAddins = $Excel.AddIns
     # The add-ins list exposed by the Excel object model is indexed from one!
     for ($i = 1; $i -le $ExcelAddins.Count; $i++) {
-        $null = $ExcelAddinsList.Add($ExcelAddins[$i])
+        $null = $ExcelAddinsList.Add($ExcelAddins.Item($i))
     }
 
     foreach ($Addin in $Addins) {
