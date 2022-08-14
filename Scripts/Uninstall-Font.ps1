@@ -89,6 +89,8 @@ Function Uninstall-Font {
     }
 
     if ($PSCmdlet.ShouldProcess($Name, 'Uninstall font')) {
+        $RemoveOnReboot = $false
+
         try {
             Write-Debug -Message ('Removing font file: {0}' -f $FontFilePath)
             Remove-Item -Path $FontFilePath -ErrorAction Stop
