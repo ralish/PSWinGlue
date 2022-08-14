@@ -28,6 +28,11 @@
 [OutputType()]
 Param()
 
+$PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
+if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
+    throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
+}
+
 # Opt-In to Microsoft Update
 # https://docs.microsoft.com/en-us/windows/win32/wua_sdk/opt-in-to-microsoft-update
 $MuServiceId = '7971f918-a847-4430-9279-4a52d1efe18d'

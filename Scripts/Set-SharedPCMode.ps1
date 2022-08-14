@@ -62,6 +62,11 @@ Param(
     [Switch]$PassThru
 )
 
+$PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
+if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
+    throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
+}
+
 $OSBuild = [Environment]::OSVersion.Version.Build
 $OSType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
 if ($OSBuild -lt 14393 -or $OSType -ne 1) {

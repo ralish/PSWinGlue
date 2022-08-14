@@ -43,6 +43,11 @@ Param(
     [String]$Scope = 'System'
 )
 
+$PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
+if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
+    throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
+}
+
 $MoveFileEx = @'
 [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "MoveFileExW", ExactSpelling = true, SetLastError = true)]
 public static extern bool MoveFileEx([MarshalAs(UnmanagedType.LPWStr)] string lpExistingFileName, IntPtr lpNewFileName, uint dwFlags);

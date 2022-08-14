@@ -53,6 +53,11 @@ Param(
     [Switch]$Reinstall
 )
 
+$PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
+if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
+    throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
+}
+
 # Valid add-in extensions
 $ValidExts = @('.xla', '.xlam')
 

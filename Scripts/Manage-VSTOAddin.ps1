@@ -60,6 +60,11 @@ Param(
     [Switch]$Silent
 )
 
+$PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
+if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
+    throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
+}
+
 $VstoInstaller = '{0}\Microsoft Shared\VSTO\10.0\VSTOInstaller.exe' -f $env:CommonProgramFiles
 $VstoArguments = @(('/{0}' -f $Operation), ('"{0}"' -f $ManifestPath))
 
