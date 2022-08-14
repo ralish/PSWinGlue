@@ -58,7 +58,7 @@ try {
     $MuServiceRegistered = $false
     $WuaServices = $WuaServiceManager.Services
     for ($i = 0; $i -lt $WuaServices.Count; $i++) {
-        $WuaService = $WuaServices[$i]
+        $WuaService = $WuaServices.Item($i)
 
         if ($WuaService.ServiceID -contains $MuServiceId) {
             $MuServiceRegistered = $true
