@@ -37,7 +37,6 @@
 #>
 
 #Requires -Version 3.0
-#Requires -RunAsAdministrator
 
 [CmdletBinding()]
 Param(
@@ -58,6 +57,11 @@ public static extern bool GetDefaultUserProfileDirectory(IntPtr lpProfileDir, ou
 [DllImport("userenv.dll", CharSet = CharSet.Unicode, EntryPoint = "GetDefaultUserProfileDirectoryW", ExactSpelling = true, SetLastError = true)]
 public static extern bool GetDefaultUserProfileDirectory(System.Text.StringBuilder lpProfileDir, out uint lpcchSize);
 '@
+
+$User = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
+if (!$User.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    throw '{0} requires Administrator privileges.' -f $MyInvocation.MyCommand.Name
+}
 
 if ($SkipRunningSetup -and $SkipUpdatingDefaultProfile) {
     throw 'Nothing to do as all operations skipped!'

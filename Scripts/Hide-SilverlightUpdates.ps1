@@ -25,7 +25,6 @@
 #>
 
 #Requires -Version 3.0
-#Requires -RunAsAdministrator
 
 [CmdletBinding()]
 [OutputType()]
@@ -34,6 +33,11 @@ Param()
 $PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
 if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
     throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
+}
+
+$User = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
+if (!$User.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    throw '{0} requires Administrator privileges.' -f $MyInvocation.MyCommand.Name
 }
 
 $UpdateSession = $null
