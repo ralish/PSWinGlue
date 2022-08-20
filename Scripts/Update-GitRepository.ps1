@@ -18,11 +18,11 @@
     Updates the Git repository in the current directory. See the description section for the steps performed.
 
     .NOTES
-    This script is primarily intended for usage in unattended scenarios, such as invoking from a Scheduled Task.
+    This function is primarily intended for usage in unattended scenarios, such as invoking from a Scheduled Task.
 
     The following potential issues are handled, which are more common with or specific to Scheduled Task execution:
     - Checks Git is installed, and if so, retrieves its installation directory
-      This enables the script to handle the case where the Git binaries aren't in the PATH of the executing user.
+      This enables the function to handle the case where the Git binaries aren't in the PATH of the executing user.
     - Ensures the environment is initialised for Git to function correctly
       In particular, the HOME environment variable may be missing when run as a Scheduled Task, causing SSH issues.
 

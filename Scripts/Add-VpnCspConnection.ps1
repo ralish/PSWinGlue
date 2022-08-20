@@ -25,11 +25,11 @@
     .NOTES
     VPN configuration using the VPNv2 CSP is only available on Windows 10 1607 or later.
 
-    To interact with the MDM Bridge WMI Provider the script must be running as SYSTEM.
+    To interact with the MDM Bridge WMI Provider the function must be running as SYSTEM.
 
-    Typically this script would be run non-interactively by a service running in the SYSTEM context (e.g. Group Policy Client).
+    Typically this function would be run non-interactively by a service running in the SYSTEM context (e.g. Group Policy Client).
 
-    To run this script interactively you should use a tool like Sysinternals PsExec to run it under the SYSTEM account.
+    To run this function interactively you should use a tool like Sysinternals PsExec to run it under the SYSTEM account.
 
     For example, the following PsExec command will launch PowerShell under the SYSTEM account: psexec -s -i powershell
 

@@ -7,7 +7,7 @@
 
     By default, the Windows Update service is registered to provide updates to the operating system. To receive updates for other installed Microsoft products the Microsoft Update service must be registered.
 
-    This script automates the registration of the Microsoft Update service with WUA to ensure the operating system and all installed Microsoft products receive available updates.
+    This function automates the registration of the Microsoft Update service with WUA to ensure the operating system and all installed Microsoft products receive available updates.
 
     .EXAMPLE
     Register-MicrosoftUpdate

@@ -7,7 +7,7 @@
 
     While these updates can be hidden via the Windows Update user interface, doing so will result in the previous Silverlight update (i.e. the one which was superseded by the now hidden update) being offered.
 
-    Hiding all Silverlight updates will typically take many "scan and hide" iterations. This script will scan for and hide all Silverlight updates in a single invocation.
+    Hiding all Silverlight updates will typically take many "scan and hide" iterations. This function will scan for and hide all Silverlight updates in a single invocation.
 
     .EXAMPLE
     Hide-SilverlightUpdates
