@@ -153,8 +153,10 @@ Function Test-PerUserFontsSupported {
     return $false
 }
 
-if ($Scope -eq 'System' -and !(Test-IsAdministrator)) {
-    throw 'Administrator privileges are required to uninstall system-wide fonts.'
+if ($Scope -eq 'System') {
+    if (!(Test-IsAdministrator) -and !$WhatIfPreference) {
+        throw 'Administrator privileges are required to uninstall system-wide fonts.'
+    }
 } elseif ($Scope -eq 'User' -and !(Test-PerUserFontsSupported)) {
     throw 'Per-user fonts are only supported from Windows 10 1809 and Windows Server 2019.'
 }

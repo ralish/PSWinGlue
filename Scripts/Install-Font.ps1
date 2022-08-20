@@ -322,7 +322,7 @@ Function Test-PerUserFontsSupported {
 
 # Validate the install scope and method
 if ($Scope -eq 'System') {
-    if (!(Test-IsAdministrator)) {
+    if (!(Test-IsAdministrator) -and !$WhatIfPreference) {
         throw 'Administrator privileges are required to install system-wide fonts.'
     } elseif ($Method -eq 'Shell' -and (Test-PerUserFontsSupported)) {
         throw 'Installing fonts system-wide via the Shell API is unsupported from Windows 10 1809.'
