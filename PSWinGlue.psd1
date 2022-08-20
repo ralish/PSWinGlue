@@ -67,6 +67,7 @@
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
     FunctionsToExport = @(
         'Add-VpnCspConnection',
+        'Find-OrphanDependencyPackages',
         'Get-ControlledGpoStatus',
         'Get-Fonts',
         'Get-InstalledPrograms',
@@ -77,6 +78,7 @@
         'Install-VSTOAddin',
         'Register-MicrosoftUpdate',
         'Remove-AlternateDataStream',
+        'Remove-OrphanDependencyPackages',
         'Set-SharedPCMode',
         'Uninstall-Font',
         'Uninstall-ObsoleteModule',
