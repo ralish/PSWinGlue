@@ -9,6 +9,7 @@ A PowerShell module consisting of an assortment of useful scripts.
 
 - [Requirements](#requirements)
 - [Installing](#installing)
+- [Usage](#usage)
 - [Functions](#functions)
 - [License](#license)
 
@@ -47,6 +48,16 @@ You can check that PowerShell is able to locate the module by running the follow
 ```posh
 Get-Module PSWinGlue -ListAvailable
 ```
+
+Usage
+-----
+
+This module has been written to support two methods of using the functions it includes:
+
+- As a regular PowerShell module (i.e. install module and call the commands it exports)
+- Calling individual functions directly via their script file independent of the module
+
+To support the latter, each exported function resides in its own script file and has no dependencies on code elsewhere in the module. This allows for easy usage of the functions in scenarios where it may not be desirable to install the entire module (e.g. logon scripts or in other automated contexts). A given script can simply be copied to the desired location and directly called, typically with no additional setup beyond any documented external dependencies.
 
 Functions
 ---------
