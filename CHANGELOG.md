@@ -1,6 +1,58 @@
 Changelog
 =========
 
+v0.6.0
+------
+
+New functions:
+
+- `Find-OrphanDependencyPackages`
+- `Install-VSTOAddin` (previously `Manage-VSTOAddin`)
+- `Remove-OrphanDependencyPackages`
+- `Uninstall-VSTOAddin` (previously `Manage-VSTOAddin`)
+
+Removed functions:
+
+- `Manage-VSTOAddin` (split into `Install` and `Uninstall` functions)
+
+Added built-in help:
+
+- `Add-VpnCspConnection`
+- `Get-InstalledPrograms`
+- `Hide-SilverlightUpdates`
+- `Install-ExcelAddin`
+- `Register-MicrosoftUpdate`
+- `Update-GitRepository`
+
+Major code clean-up:
+
+- `Add-VpnCspConnection`
+- `Get-Fonts`
+- `Hide-SilverlightUpdates`
+- `Install-ExcelAddin`
+- `Install-Font`
+- `Register-MicrosoftUpdate`
+- `Remove-AlternateDateStream`
+- `Uninstall-Font`
+- `Uninstall-ObsoleteModule`
+- `Update-GitRepository`
+
+Minor code clean-up:
+
+- `Get-InstalledPrograms`
+- `Get-TaskSchedulerEvent`
+- `Set-SharedPCMode`
+- `Update-OneDriveSetup`
+
+Additional changes:
+
+- `ConsoleAPI`: Add all missing function signatures
+- `ConsoleAPI`: Add namespace (`PSWinGlue`) and class (`ConsoleAPI`)
+- `Uninstall-ObsoleteModule`: Add PowerShellGet v3 support (currently in beta)
+- Add check we're running on Windows for applicable functions
+- Replace `-RunAsAdministrator` with equivalent check in functions
+- Minor code clean-up & developer tooling improvements
+
 v0.5.7
 ------
 
