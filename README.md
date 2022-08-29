@@ -9,12 +9,14 @@ A PowerShell module consisting of an assortment of useful scripts.
 
 - [Requirements](#requirements)
 - [Installing](#installing)
+- [Functions](#functions)
 - [License](#license)
 
 Requirements
 ------------
 
-- PowerShell 3.0 (or later)
+- PowerShell 3.0 (or later)  
+  Some functions require a later PowerShell version
 
 Installing
 ----------
@@ -45,6 +47,446 @@ You can check that PowerShell is able to locate the module by running the follow
 ```posh
 Get-Module PSWinGlue -ListAvailable
 ```
+
+Functions
+---------
+
+### Add-VpnCspConnection
+
+Adds a VPN connection using the VPNv2 CSP via the MDM Bridge WMI Provider.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows 10 1607 or later</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>5.1</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Find-OrphanDependencyPackages
+
+Locates orphan dependency packages in the system package cache.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Get-ControlledGpoStatus
+
+Check Windows domain GPOs and AGPM server controlled GPOs are in sync.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>GroupPolicy<br>Microsoft.Agpm</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Get-Fonts
+
+Retrieves registered fonts.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Get-InstalledPrograms
+
+Retrieves installed programs.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Get-TaskSchedulerEvent
+
+Retrieves events matching the specified IDs from the Task Scheduler event log.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Hide-SilverlightUpdates
+
+Hides Silverlight updates.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Install-ExcelAddin
+
+Installs Excel add-ins.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>Microsoft Excel</td>
+  </tr>
+</table>
+
+### Install-Font
+
+Installs a specific font or all fonts from a directory.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>4.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Install-VSTOAddin
+
+Install a Visual Studio Tools for Office (VSTO) add-in.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>Microsoft Visual Studio Tools for Office (VSTO) Runtime</td>
+  </tr>
+</table>
+
+### Register-MicrosoftUpdate
+
+Register the Microsoft Update service with the Windows Update Agent.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Remove-AlternateDataStream
+
+Remove common unwanted alternate data streams from files.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Remove-OrphanDependencyPackages
+
+Removes orphan dependency packages in the system package cache.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Set-SharedPCMode
+
+Configures Shared PC Mode using the SharedPC CSP via the MDM Bridge WMI Provider.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows 10 1607 or later</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>5.1</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Uninstall-Font
+
+Uninstalls a specific font by name.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Uninstall-ObsoleteModule
+
+Uninstalls obsolete PowerShell modules.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Linux, macOS, Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>PowerShellGet</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
+### Uninstall-VSTOAddin
+
+Uninstall a Visual Studio Tools for Office (VSTO) add-in.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>Microsoft Visual Studio Tools for Office (VSTO) Runtime</td>
+  </tr>
+</table>
+
+### Update-GitRepository
+
+Updates a Git repository.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>Git</td>
+  </tr>
+</table>
+
+### Update-OneDriveSetup
+
+Update OneDrive during Windows image creation.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>Microsoft OneDrive</td>
+  </tr>
+</table>
 
 License
 -------
