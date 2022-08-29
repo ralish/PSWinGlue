@@ -87,6 +87,11 @@ if ($OSCurrentBuild -lt $OSRequiredBuild -or $OSCurrentType -ne $OSRequiredType)
     throw 'Shared PC Mode is only available on Windows 10 1607 or later.'
 }
 
+$PowerShellMin = New-Object -TypeName Version -ArgumentList 5, 1
+if ($PSVersionTable.PSVersion -lt $PowerShellMin) {
+    throw '{0} requires at least PowerShell {1}.' -f $MyInvocation.MyCommand.Name, $PowerShellMin
+}
+
 $SidCurrent = ([Security.Principal.WindowsIdentity]::GetCurrent()).User.Value
 if ($SidCurrent -ne $SidSystem) {
     throw 'Must be running as SYSTEM to interact with MDM Bridge WMI Provider.'

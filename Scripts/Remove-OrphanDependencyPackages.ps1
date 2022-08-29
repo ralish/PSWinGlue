@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-    Removes orphan dependency packages
+    Removes orphan dependency packages in the system package cache
 
     .DESCRIPTION
     Windows maintains a local package cache of installed software to simplify operations which require access to the original installer. The package cache is typically located at "C:\ProgramData\Package Cache".

@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-    Installs Excel add-ins without user interaction
+    Installs Excel add-ins
 
     .DESCRIPTION
     This function is designed to assist with handling two common installation scenarios for Excel add-ins:

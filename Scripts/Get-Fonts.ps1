@@ -1,6 +1,6 @@
 <#
     .SYNOPSIS
-    Retrieve registered fonts
+    Retrieves registered fonts
 
     .DESCRIPTION
     Enumerates all registered fonts, performs basic consistency checks, and returns the font name and associated file for each font.

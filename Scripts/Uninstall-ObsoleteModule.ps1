@@ -34,7 +34,7 @@
 
     At the time of writing, PowerShellGet v3 is still in pre-release and is not at feature parity with PowerShellGet v2. For this reason it's recommended you install both, and this function will use whichever is best for the task at hand.
 
-    Running this script without Administrator privileges will result in only obsolete modules installed in the per-user scope being uninstalled. Obsolete modules installed for all users will output a warning message requesting Administrator privileges.
+    Running this function without Administrator privileges will result in only obsolete modules installed in the per-user scope being uninstalled. Obsolete modules installed for all users will output a warning message requesting Administrator privileges.
 
     .LINK
     https://github.com/ralish/PSWinGlue
