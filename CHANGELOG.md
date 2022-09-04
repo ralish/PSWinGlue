@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.6.2
+------
+
+- `Uninstall-ObsoleteModule`: Fix incorrect `ProgressPreference` value
+
 v0.6.1
 ------
 
