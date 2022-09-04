@@ -110,7 +110,7 @@ if (!$IncludeDscModules -and $DscSupported) {
     # manners to clean them up. The result is a visual mess when when we've got
     # our own progress bars.
     $OriginalProgressPreference = $ProgressPreference
-    Set-Variable -Name 'ProgressPreference' -Scope Global -Value Ignore -WhatIf:$false
+    Set-Variable -Name 'ProgressPreference' -Scope Global -Value SilentlyContinue -WhatIf:$false
 
     try {
         # Get-DscResource may output various errors, most often due to
