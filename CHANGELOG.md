@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.6.1
+------
+
+- `Uninstall-ObsoleteModule`: Improve `PowerShellGet` version detection
+
 v0.6.0
 ------
 
