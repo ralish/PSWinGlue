@@ -54,18 +54,19 @@ Param(
     [Int]$ProgressParentId
 )
 
-$PowerShellGet = Get-Module -Name 'PowerShellGet' -ListAvailable -Verbose:$false
+$PowerShellGet = @(Get-Module -Name 'PowerShellGet' -ListAvailable -Verbose:$false)
 if (!$PowerShellGet) {
     throw 'Required module not available: PowerShellGet'
 }
 
 $PsGetV3 = $false
-if ($PowerShellGet.Version.Major -ge 3) {
+$PsGetLatest = $PowerShellGet | Sort-Object -Property 'Version' -Descending | Select-Object -First 1
+if ($PsGetLatest.Version.Major -ge 3) {
     $PsGetV3 = $true
-} elseif ($PowerShellGet.Version.Major -lt 2) {
-    throw 'At least PowerShellGet v2 is required but found: {0}' -f $PowerShellGet.Version
+} elseif ($PsGetLatest.Version.Major -lt 2) {
+    throw 'At least PowerShellGet v2 is required but found: {0}' -f $PsGetLatest.Version
 }
-Write-Verbose -Message ('Using PowerShellGet v{0}' -f $PowerShellGet.Version)
+Write-Verbose -Message ('Using PowerShellGet v{0}' -f $PsGetLatest.Version)
 
 # Not all platforms have DSC support as part of PowerShell itself
 $DscSupported = Get-Command -Name 'Get-DscResource' -ErrorAction Ignore
