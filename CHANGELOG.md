@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.6.3
+------
+
+- `Uninstall-ObsoleteModule`: Retain latest `PowerShellGet` v2 & v3 versions
+- `Uninstall-ObsoleteModule`: Fix `-Name` bug when module has a single version
+
 v0.6.2
 ------
 
