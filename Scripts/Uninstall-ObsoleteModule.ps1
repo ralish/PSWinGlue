@@ -97,7 +97,7 @@ if ($PsGetV3) {
 
 # Get-PSResource returns all module versions, while Get-InstalledModule only
 # returns the latest version, so this is only necessary for PsGet v2.
-$UniqueModules = $InstalledModules.Name | Sort-Object -Unique
+$UniqueModules = @($InstalledModules.Name | Sort-Object -Unique)
 
 # Percentage of the total progress for updating modules
 $ProgressPercentUpdatesBase = 10
