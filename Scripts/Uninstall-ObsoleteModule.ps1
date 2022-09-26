@@ -161,8 +161,28 @@ for ($ModuleIdx = 0; $ModuleIdx -lt $UniqueModules.Count; $ModuleIdx++) {
         continue
     }
 
-    $SortedModules = @($AllVersions | Sort-Object -Property Version)
-    $ObsoleteModules = @($SortedModules[0..($SortedModules.Count - 2)])
+    # A special case for PowerShellGet, at least while v3 is in beta: if a v2
+    # version and a v3 version are installed side-by-side, retain the latest
+    # version within each major release, instead of only the latest version.
+    if ($ModuleName -eq 'PowerShellGet' -and $AllVersions.Version.Major -contains 2 -and $AllVersions.Version.Major -contains 3) {
+        $ObsoletePsGet = @($AllVersions | Where-Object { $_.Version.Major -ne 2 -and $_.Version.Major -ne 3 })
+
+        $ObsoletePsGetV2 = @($AllVersions | Where-Object { $_.Version.Major -eq 2 } | Sort-Object -Property Version)
+        if ($ObsoletePsGetV2.Count -gt 1) {
+            $ObsoletePsGet += @($ObsoletePsGetV2[0..($ObsoletePsGetV2.Count - 2)])
+        }
+
+        $ObsoletePsGetV3 = @($AllVersions | Where-Object { $_.Version.Major -eq 3 } | Sort-Object -Property Version)
+        if ($ObsoletePsGetV3.Count -gt 1) {
+            $ObsoletePsGet += @($ObsoletePsGetV3[0..($ObsoletePsGetV3.Count - 2)])
+        }
+
+        $ObsoleteModules = @($ObsoletePsGet | Sort-Object -Property Version)
+    } else {
+        $SortedModules = @($AllVersions | Sort-Object -Property Version)
+        $ObsoleteModules = @($SortedModules[0..($SortedModules.Count - 2)])
+    }
+
     $ObsoleteVersions = $ObsoleteModules.Version -join ', '
     $ObsoleteVersionsWithModuleName = '{0}: {1}' -f $ModuleName, ($ObsoleteVersions -join ', ')
 
