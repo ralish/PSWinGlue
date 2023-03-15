@@ -14,7 +14,8 @@
     This function can uninstall "orphaned" dependency packages and remove cached installers, as identified by the Find-OrphanDependencyPackages function. You use this function entirely at your own risk!
 
     .EXAMPLE
-    Remove-OrphanDependencyPackages
+    $Packages = Find-OrphanDependencyPackages
+    Remove-OrphanDependencyPackages -Packages $Packages
 
     Removes orphan dependency packages found by Find-OrphanDependencyPackages.
 
