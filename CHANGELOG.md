@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.6.4
+------
+
+- `Find-OrphanDependencyPackages`: Add awareness of *Visual Studio* package cache
+- `Install-Font`: Remove warning on finding unregistered fonts
+
 v0.6.3
 ------
 
