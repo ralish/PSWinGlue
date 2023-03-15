@@ -16,12 +16,12 @@
     .EXAMPLE
     Find-OrphanDependencyPackages
 
-    Analyzes the registry and filesystem for orphan dependency packages.
+    Analyzes the registry and file system for orphan dependency packages.
 
     .NOTES
     There's no simple way to "clean" the package cache and associated registry data. The best that can be done is to try and determine if a package is unused and match registry data to a cached installer.
 
-    The general process is to inspect the registry data for each package, and given an absence of any metadata and a "Dependents" key with no sub-keys, it's fairly safely assume it is an orphaned dependency.
+    The general process is to inspect the registry data for each package, and given an absence of any metadata and a "Dependents" key with no sub-keys, it's fairly safe to assume it is an orphaned dependency.
 
     Matching a package to a cached installer is non-trivial, as there's no general way to make the match. This function is able to do so for various .NET Core packages due to the predictable naming scheme.
 
@@ -40,8 +40,10 @@ if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform 
     throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
 }
 
-# Package cache path
-$Script:PackageCachePath = Join-Path -Path $env:ProgramData -ChildPath 'Package Cache'
+# System package cache
+$Script:SysPackageCache = Join-Path -Path $env:ProgramData -ChildPath 'Package Cache'
+# Visual Studio package cache
+$Script:VsPackageCache = Join-Path -Path $env:ProgramData -ChildPath 'Microsoft\VisualStudio\Packages'
 
 # Registry MSI metadata
 $Script:InstallerRegPath = 'HKLM:\SOFTWARE\Classes\Installer'
@@ -123,7 +125,7 @@ Function Find-DotNetCliPackagesFromCache {
 
     # Retrieve all Dotnet_CLI packages
     $DncFileRegex = '^dotnet-sdk-internal-.+\.msi'
-    $DncInstallers = Get-ChildItem -Path $Script:PackageCachePath -File -Recurse | Where-Object Name -Match $DncFileRegex
+    $DncInstallers = Get-ChildItem -Path $Script:PackageCaches -File -Recurse | Where-Object Name -Match $DncFileRegex
 
     # Create a Windows Installer COM object
     $Msi = New-Object -ComObject 'WindowsInstaller.Installer'
@@ -270,7 +272,7 @@ Function Resolve-OrphanDependenciesRegistryToCache {
     )
 
     # Retrieve all cached packages
-    $Packages = Get-ChildItem -Path $Script:PackageCachePath -File -Recurse
+    $Packages = Get-ChildItem -Path $Script:PackageCaches -File -Recurse
 
     foreach ($RegistryPackage in $RegistryPackages) {
         $RegistryPackage.CacheStatus = 'None found'
@@ -332,6 +334,12 @@ Function Resolve-OrphanDependenciesRegistryToCache {
             }
         }
     }
+}
+
+# Determine which file system package caches to inspect
+$Script:PackageCaches = @($Script:SysPackageCache)
+if (Test-Path -Path $Script:VsPackageCache -PathType Container -ErrorAction Ignore) {
+    $Script:PackageCaches += $Script:VsPackageCache
 }
 
 $Packages = Find-OrphanDependenciesFromRegistry
