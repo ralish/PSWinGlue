@@ -19,6 +19,9 @@
 
     The default is system-wide.
 
+    .Parameter IgnoreNotPresent
+    If the font to be uninstalled is not registered, ignore it instead of throwing an exception.
+
     .EXAMPLE
     Uninstall-Font -Name 'Georgia (TrueType)'
 
@@ -40,7 +43,9 @@ Param(
     [String]$Name,
 
     [ValidateSet('System', 'User')]
-    [String]$Scope = 'System'
+    [String]$Scope = 'System',
+
+    [Switch]$IgnoreNotPresent
 )
 
 $PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
@@ -56,7 +61,9 @@ Function Uninstall-Font {
         [String]$Name,
 
         [ValidateSet('System', 'User')]
-        [String]$Scope = 'System'
+        [String]$Scope = 'System',
+
+        [Switch]$IgnoreNotPresent
     )
 
     switch ($Scope) {
@@ -78,6 +85,7 @@ Function Uninstall-Font {
     }
 
     if ($FontsReg.Property -notcontains $Name) {
+        if ($IgnoreNotPresent) { return }
         throw 'Font not registered for {0}: {1}' -f $Scope.ToLower(), $Name
     }
 
