@@ -30,6 +30,15 @@
 
     The Shell approach is not safe to use in unattended scenarios as in some instances it may present interactive prompts (e.g. overwriting an existing font).
 
+    .PARAMETER UninstallExisting
+    If a font of the same name is already installed, uninstall it first before installing the provided font.
+
+    This parameter only applies to the Manual install method, as the Shell install method provides its own support.
+
+    Uninstallation will only be attempted if the computed hash of the existing font is different from the provided font.
+
+    When calling Install-Font.ps1 directly (not via the PSWinGlue module), ensure Uninstall-Font.ps1 is in the same directory.
+
     .EXAMPLE
     Install-Fonts -Path C:\Fonts
 
@@ -62,7 +71,9 @@ Param(
     [String]$Scope = 'System',
 
     [ValidateSet('Manual', 'Shell')]
-    [String]$Method = 'Manual'
+    [String]$Method = 'Manual',
+
+    [Switch]$UninstallExisting
 )
 
 $PowerShellMin = New-Object -TypeName Version -ArgumentList 4, 0
@@ -151,7 +162,9 @@ Function Install-FontManual {
         [Collections.Generic.List[IO.FileInfo]]$Fonts,
 
         [ValidateSet('System', 'User')]
-        [String]$Scope = 'System'
+        [String]$Scope = 'System',
+
+        [Switch]$UninstallExisting
     )
 
     Begin {
@@ -225,8 +238,20 @@ Function Install-FontManual {
             }
 
             if ($FontsReg.Property.Contains($FontRegName)) {
-                Write-Error -Message ('Font registry name already exists: {0}' -f $FontRegName)
-                continue
+                if (!$UninstallExisting) {
+                    Write-Error -Message ('Font registry name already exists: {0}' -f $FontRegName)
+                    continue
+                }
+
+                $ExistingFontRegValue = $FontsReg.GetValue($FontRegName)
+                if ($Scope -eq 'User') {
+                    $ExistingFontRegFileName = [IO.Path]::GetFileName($ExistingFontRegValue)
+                } else {
+                    $ExistingFontRegFileName = $ExistingFontRegValue
+                }
+
+                Write-Verbose -Message ('Uninstalling existing font: {0}' -f $ExistingFontRegFileName)
+                & $UninstallFont -Name $FontRegName -Scope $Scope
             }
 
             if ($PSCmdlet.ShouldProcess($Font.Name, 'Install font manually')) {
@@ -337,6 +362,21 @@ try {
     throw 'Provided path is invalid: {0}' -f $Path
 }
 
+# Validate uninstall of existing font
+if ($UninstallExisting) {
+    if ($Method -ne 'Manual') {
+        throw 'The -UninstallExisting parameter can only be used with the Manual install method.'
+    }
+
+    $UninstallFont = 'Uninstall-Font'
+    if (!(Get-Command -Name $UninstallFont -ErrorAction Ignore)) {
+        $UninstallFont = Join-Path -Path $PSScriptRoot -ChildPath 'Uninstall-Font.ps1'
+        if (!(Test-Path -Path $UninstallFont -PathType Leaf)) {
+            throw 'Unable to locate Uninstall-Font.ps1 script required for -UninstallExisting use.'
+        }
+    }
+}
+
 # Enumerate fonts to be installed
 if ($SourceFontPath -is [IO.DirectoryInfo]) {
     $SourceFonts = @(Get-ChildItem -Path $SourceFontPath | Where-Object Extension -In $ValidExts)
@@ -378,7 +418,7 @@ foreach ($Font in $SourceFonts) {
 # Install fonts using selected method
 if ($InstallFonts) {
     switch ($Method) {
-        'Manual' { Install-FontManual -Fonts $InstallFonts -Scope $Scope }
+        'Manual' { Install-FontManual -Fonts $InstallFonts -Scope $Scope -UninstallExisting:$UninstallExisting }
         'Shell' { Install-FontShell -Fonts $InstallFonts }
     }
 }
