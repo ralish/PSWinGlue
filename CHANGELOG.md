@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.6.5
+------
+
+- `Install-Font`: Add `-UninstallExisting` parameter (GH #6)
+- `Uninstall-Font`: Add `-IgnoreNotPresent` parameter (GH #7)
+
 v0.6.4
 ------
 
