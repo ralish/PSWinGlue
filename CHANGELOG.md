@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.6.6
+------
+
+- `Get-Fonts`: Gracefully handle missing *Fonts* folder or registry key (GH #8)
+- `Install-Font`: Gracefully handle missing *Fonts* folder or registry key (GH #8)
+
 v0.6.5
 ------
 
