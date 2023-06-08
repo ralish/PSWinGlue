@@ -113,12 +113,16 @@ Function Get-Fonts {
 
     try {
         $FontFiles = @(Get-ChildItem -Path $FontsFolder -ErrorAction Stop | Where-Object Extension -In $ValidExts)
+    } catch [Management.Automation.ItemNotFoundException] {
+        $FontFiles = @()
     } catch {
         throw 'Unable to enumerate {0} fonts folder: {1}' -f $Scope.ToLower(), $FontsFolder
     }
 
     try {
         $FontsReg = Get-Item -Path $FontsRegKey -ErrorAction Stop
+    } catch [Management.Automation.ItemNotFoundException] {
+        $FontsReg = @()
     } catch {
         throw 'Unable to open {0} fonts registry key: {1}' -f $Scope.ToLower(), $FontsRegKey
     }
