@@ -80,6 +80,7 @@
         'Remove-AlternateDataStream',
         'Remove-OrphanDependencyPackages',
         'Set-SharedPCMode',
+        'Sort-RegistryExport',
         'Uninstall-Font',
         'Uninstall-ObsoleteModule',
         'Uninstall-VSTOAddin',

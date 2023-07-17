@@ -384,6 +384,29 @@ Configures Shared PC Mode using the SharedPC CSP via the MDM Bridge WMI Provider
   </tr>
 </table>
 
+### Sort-RegistryExport
+
+Lexically sorts the exported values for each registry key in a Windows Registry export.
+
+<table>
+  <tr>
+    <td>Supported OS(s)</td>
+    <td>Windows</td>
+  </tr>
+  <tr>
+    <td>Minimum PowerShell version</td>
+    <td>3.0</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party module(s)</td>
+    <td>None</td>
+  </tr>
+  <tr>
+    <td>Required 3rd-party software</td>
+    <td>None</td>
+  </tr>
+</table>
+
 ### Uninstall-Font
 
 Uninstalls a specific font by name.
