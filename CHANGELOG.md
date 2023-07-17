@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.6.7
+------
+
+- Add `Sort-RegistryExport` function
+- `Set-SharedPCMode`: Add support for additional settings
+
 v0.6.6
 ------
 
