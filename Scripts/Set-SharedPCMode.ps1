@@ -50,6 +50,8 @@
 [OutputType([Void], [Microsoft.Management.Infrastructure.CimInstance])]
 Param(
     [Bool]$EnableSharedPCMode,
+    [Bool]$EnableSharedPCModeWithOneDriveSync,
+    [Bool]$EnableWindowsInsiderPreviewFlighting,
     [Bool]$SetEduPolicies,
     [Bool]$SetPowerPolicies,
     [Int]$MaintenanceStartTime,
@@ -104,7 +106,7 @@ $IgnoredParameters = [Management.Automation.Cmdlet]::CommonParameters + 'PassThr
 foreach ($Parameter in $PSBoundParameters.GetEnumerator()) {
     if ($Parameter.Key -notin $IgnoredParameters) {
         if ($Parameter.Key -notin $MdmCspProperties) {
-            throw 'Parameter not supported on this Windows 10 version: {0}' -f $Parameter.Key
+            throw 'Parameter not supported on this Windows version: {0}' -f $Parameter.Key
         }
 
         $MdmSharedPC.($Parameter.Key) = $Parameter.Value
