@@ -24,13 +24,9 @@
             CheckHashtable = $true
         }
 
-        PSAvoidLongLines = @{
-            Enable            = $false
-            MaximumLineLength = 119
-        }
-
-        PSAvoidUsingCmdletAliases = @{
-            allowlist = @()
+        PSAvoidUsingPositionalParameters = @{
+            Enable           = $true
+            CommandAllowList = @()
         }
 
         PSPlaceCloseBrace = @{
