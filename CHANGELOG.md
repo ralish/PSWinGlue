@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.6.8
+------
+
+- `Install-Font`: Internal changes to avoid handles to font files being kept open
+
 v0.6.7
 ------
 
