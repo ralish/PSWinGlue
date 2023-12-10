@@ -1,8 +1,8 @@
 {
     "default": true,
-    "header-style": { "style": "setext_with_atx" },
+    "heading-style": { "style": "setext_with_atx" },
     "no-trailing-spaces": { "br_spaces": 2 },
     "line-length": false,
-    "no-inline-html": { "allowed_elements": ["br", "table", "td", "tr"] },
-    "no-trailing-punctuation": { "punctuation": ".,;:!" }
+    "no-trailing-punctuation": { "punctuation": ".,;:!" },
+    "no-inline-html": { "allowed_elements": ["br", "table", "td", "tr"] }
 }
