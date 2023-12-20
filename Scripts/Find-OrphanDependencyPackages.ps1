@@ -72,7 +72,7 @@ $Script:KnownPackages = @{
         File      = '^dotnet-hostfxr-.+-$2\.msi'
     }
     Dotnet_CLI_SharedHost                              = @{
-        Registry  = 'Dotnet_CLI_SharedHost_(\d+\.\d+\.\d+)_([a-z0-9]+)'
+        Registry  = 'Dotnet_CLI_SharedHost_(\d+\.\d+(\.\d+)?)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-host-.+-$2\.msi'
     }
