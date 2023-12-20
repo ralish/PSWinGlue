@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.6.9
+------
+
+- Show a warning on skipping import of existing functions
+- `Find-OrphanDependencyPackages`: Fix Dotnet_CLI_SharedHost regex
+
 v0.6.8
 ------
 
