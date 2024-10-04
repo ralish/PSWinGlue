@@ -34,10 +34,10 @@
     For example, the following PsExec command will launch PowerShell under the SYSTEM account: psexec -s -i powershell
 
     VPNv2 CSP
-    https://docs.microsoft.com/en-us/windows/client-management/mdm/vpnv2-csp
+    https://learn.microsoft.com/en-us/windows/client-management/mdm/vpnv2-csp
 
     MDM_VPNv2_01 class
-    https://docs.microsoft.com/en-us/windows/win32/dmwmibridgeprov/mdm-vpnv2-01
+    https://learn.microsoft.com/en-us/windows/win32/dmwmibridgeprov/mdm-vpnv2-01
 
     .LINK
     https://github.com/ralish/PSWinGlue

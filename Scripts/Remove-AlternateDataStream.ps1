@@ -32,7 +32,7 @@
 
     .NOTES
     For bulk removal of alternate data streams consider Sysinternals Streams:
-    https://docs.microsoft.com/en-us/sysinternals/downloads/streams
+    https://learn.microsoft.com/en-us/sysinternals/downloads/streams
 
     .LINK
     https://github.com/ralish/PSWinGlue

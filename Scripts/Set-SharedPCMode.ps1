@@ -31,13 +31,13 @@
     For example, the following PsExec command will launch PowerShell under the SYSTEM account: psexec -s -i powershell
 
     Set up a shared or guest PC with Windows 10/11
-    https://docs.microsoft.com/en-us/windows/configuration/set-up-shared-or-guest-pc
+    https://learn.microsoft.com/en-us/windows/configuration/set-up-shared-or-guest-pc
 
     SharedPC CSP
-    https://docs.microsoft.com/en-us/windows/client-management/mdm/sharedpc-csp
+    https://learn.microsoft.com/en-us/windows/client-management/mdm/sharedpc-csp
 
     MDM_SharedPC class
-    https://docs.microsoft.com/en-us/windows/win32/dmwmibridgeprov/mdm-sharedpc
+    https://learn.microsoft.com/en-us/windows/win32/dmwmibridgeprov/mdm-sharedpc
 
     .LINK
     https://github.com/ralish/PSWinGlue

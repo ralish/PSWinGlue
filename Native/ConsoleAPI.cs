@@ -1,6 +1,6 @@
 /*
     Implements P/Invoke signatures for the Windows Console API
-    https://docs.microsoft.com/en-us/windows/console/console-functions
+    https://learn.microsoft.com/en-us/windows/console/console-functions
 */
 
 using System;

@@ -29,10 +29,10 @@
     The VSTOInstaller.exe which matches the bitness of the PowerShell runtime will be used (e.g. 64-bit VSTOInstaller.exe with 64-bit PowerShell).
 
     Parameters for VSTOInstaller.exe
-    https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2010/bb772078(v=vs.100)#parameters-for-vstoinstallerexe
+    https://learn.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2010/bb772078(v=vs.100)#parameters-for-vstoinstallerexe
 
     VSTOInstaller Error Codes
-    https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2010/bb757423(v=vs.100)
+    https://learn.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2010/bb757423(v=vs.100)
 
     .LINK
     https://github.com/ralish/PSWinGlue

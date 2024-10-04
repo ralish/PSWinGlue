@@ -38,11 +38,11 @@ if (!$User.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
 }
 
 # Opt-In to Microsoft Update
-# https://docs.microsoft.com/en-us/windows/win32/wua_sdk/opt-in-to-microsoft-update
+# https://learn.microsoft.com/en-us/windows/win32/wua_sdk/opt-in-to-microsoft-update
 $MuServiceId = '7971f918-a847-4430-9279-4a52d1efe18d'
 
 # AddServiceFlag enumeration
-# https://docs.microsoft.com/en-us/windows/win32/api/wuapi/ne-wuapi-addserviceflag
+# https://learn.microsoft.com/en-us/windows/win32/api/wuapi/ne-wuapi-addserviceflag
 $asfAllowPendingRegistration = 1
 $asfAllowOnlineRegistration = 2
 $asfRegisterServiceWithAU = 4

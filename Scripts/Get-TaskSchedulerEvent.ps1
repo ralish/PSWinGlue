@@ -35,7 +35,7 @@
 
     .NOTES
     Task Scheduler events
-    https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/dd315533(v%3dws.10)#events
+    https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/dd315533(v%3dws.10)#events
 
     .LINK
     https://github.com/ralish/PSWinGlue

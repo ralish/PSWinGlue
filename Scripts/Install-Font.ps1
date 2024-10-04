@@ -290,11 +290,11 @@ Function Install-FontShell {
 
     Begin {
         # ShellSpecialFolderConstants enumeration
-        # https://docs.microsoft.com/en-us/windows/desktop/api/Shldisp/ne-shldisp-shellspecialfolderconstants
+        # https://learn.microsoft.com/en-us/windows/desktop/api/Shldisp/ne-shldisp-shellspecialfolderconstants
         $ssfFONTS = 20
 
         # _SHFILEOPSTRUCTA structure
-        # https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shfileopstructa
+        # https://learn.microsoft.com/en-us/windows/desktop/api/shellapi/ns-shellapi-_shfileopstructa
         $FOF_SILENT = 4
         $FOF_NOCONFIRMATION = 16
         $FOF_NOERRORUI = 1024
