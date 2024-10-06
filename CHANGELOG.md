@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.6.10
+-------
+
+- Update `docs.microsoft.com` links to `learn.microsoft.com`
+- `Find-OrphanDependencyPackages`: Fix handling of empty result sets
+
 v0.6.9
 ------
 
