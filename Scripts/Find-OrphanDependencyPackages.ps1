@@ -52,7 +52,7 @@ $Script:DependenciesRegPath = Join-Path -Path $InstallerRegPath -ChildPath 'Depe
 
 # Known packages
 $Script:KnownPackages = @{
-    dotnet_apphost_pack                                = @{
+    'dotnet_apphost_pack'                              = @{
         Registry  = 'dotnet_apphost_pack_(\d+\.\d+\.\d+)_([a-z0-9_]+)'
         Directory = 'v$1'
         File      = '^dotnet-apphost-pack-.+-$2\.msi'
@@ -61,27 +61,27 @@ $Script:KnownPackages = @{
     # package cache. Instead, we have to find MSI files matching the below
     # pattern, then extract a record from them which we can use to match
     # against the correct registry key.
-    #Dotnet_CLI                                        = @{
+    #'Dotnet_CLI'                                      = @{
     #   Registry  = 'Dotnet_CLI_(\d+\.\d+\.\d+)\.\d+_([a-z0-9]+)'
     #   Directory = 'v\d+\.\d+\.\d+'
     #   File      = '^dotnet-sdk-internal-.+-$2\.msi'
     #}
-    Dotnet_CLI_HostFxr                                 = @{
+    'Dotnet_CLI_HostFxr'                               = @{
         Registry  = 'Dotnet_CLI_HostFxr_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-hostfxr-.+-$2\.msi'
     }
-    Dotnet_CLI_SharedHost                              = @{
+    'Dotnet_CLI_SharedHost'                            = @{
         Registry  = 'Dotnet_CLI_SharedHost_(\d+\.\d+(\.\d+)?)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-host-.+-$2\.msi'
     }
-    dotnet_runtime                                     = @{
+    'dotnet_runtime'                                   = @{
         Registry  = 'dotnet_runtime_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-runtime-.+-$2\.msi'
     }
-    dotnet_targeting_pack                              = @{
+    'dotnet_targeting_pack'                            = @{
         Registry  = 'dotnet_targeting_pack_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-targeting-pack-.+-$2\.msi'
@@ -101,17 +101,17 @@ $Script:KnownPackages = @{
         Directory = 'v$2'
         File      = '^aspnetcore-targeting-pack-$2-.+-$1\.msi'
     }
-    NetCore_Templates                                  = @{
+    'NetCore_Templates'                                = @{
         Registry  = 'NetCore_Templates_\d+\.\d+_(\d+\.\d+\.\d+).*_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-\d+templates-.+-$2\.msi'
     }
-    windowsdesktop_runtime                             = @{
+    'windowsdesktop_runtime'                           = @{
         Registry  = 'windowsdesktop_runtime_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^windowsdesktop-runtime-.+-$2\.msi'
     }
-    windowsdesktop_targeting_pack                      = @{
+    'windowsdesktop_targeting_pack'                    = @{
         Registry  = 'windowsdesktop_targeting_pack_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^windowsdesktop-targeting-pack-.+-$2\.msi'
@@ -120,21 +120,27 @@ $Script:KnownPackages = @{
 
 Function Find-DotNetCliPackagesFromCache {
     [CmdletBinding()]
-    [OutputType([PSCustomObject[]])]
+    [OutputType([Object[]])]
     Param()
+
+    $Results = New-Object -TypeName 'Collections.Generic.List[PSCustomObject]'
 
     # Retrieve all Dotnet_CLI packages
     $DncFileRegex = '^dotnet-sdk-internal-.+\.msi'
-    $DncInstallers = Get-ChildItem -Path $Script:PackageCaches -File -Recurse | Where-Object Name -Match $DncFileRegex
+    $DncInstallers = @(Get-ChildItem -Path $Script:PackageCaches -File -Recurse | Where-Object Name -Match $DncFileRegex)
 
-    # Create a Windows Installer COM object
+    if ($DncInstallers.Count -eq 0) {
+        Write-Verbose -Message 'No .NET CLI packages found in package caches.'
+        return , $Results.ToArray()
+    }
+
+    # Windows Installer object for querying MSI databases
     $Msi = New-Object -ComObject 'WindowsInstaller.Installer'
 
     # Windows Installer method parameters
     $MsiOpenDatabaseModeReadOnly = 0
     $MsiOpenViewQuery = @('SELECT `ProviderKey` FROM `WixDependencyProvider`')
 
-    $Results = New-Object -TypeName 'Collections.Generic.List[PSCustomObject]'
     foreach ($DncInstaller in $DncInstallers) {
         $DotNetCli = [PSCustomObject]@{
             Name     = $DncInstaller.Name
@@ -174,19 +180,27 @@ Function Find-DotNetCliPackagesFromCache {
         }
     }
 
+    $null = [Runtime.InteropServices.Marshal]::ReleaseComObject($Msi)
+
     return ($Results.ToArray() | Sort-Object -Property Name)
 }
 
 Function Find-OrphanDependenciesFromRegistry {
     [CmdletBinding()]
-    [OutputType([PSCustomObject[]])]
+    [OutputType([Object[]])]
     Param()
 
+    $Results = New-Object -TypeName 'Collections.Generic.List[PSCustomObject]'
+
     # Retrieve all package dependencies
-    $Dependencies = Get-ChildItem -Path $Script:DependenciesRegPath
+    $Dependencies = @(Get-ChildItem -Path $Script:DependenciesRegPath)
+
+    if ($Dependencies.Count -eq 0) {
+        Write-Warning -Message 'No MSI dependency packages found in the registry.'
+        return , $Results.ToArray()
+    }
 
     # Filter out packages with dependencies
-    $Results = New-Object -TypeName 'Collections.Generic.List[PSCustomObject]'
     foreach ($DependencyKey in $Dependencies) {
         $Dependency = [PSCustomObject]@{
             Name        = $DependencyKey.PSChildName
@@ -343,9 +357,13 @@ if (Test-Path -Path $Script:VsPackageCache -PathType Container -ErrorAction Igno
 }
 
 $Packages = Find-OrphanDependenciesFromRegistry
-Resolve-OrphanDependenciesRegistryToCache -RegistryPackages $Packages
+if ($Packages) {
+    Resolve-OrphanDependenciesRegistryToCache -RegistryPackages $Packages
 
-$DotNetCli = Find-DotNetCliPackagesFromCache
-Resolve-DotNetCliPackagesCacheToRegistry -DotNetCliPackages $DotNetCli -RegistryPackages $Packages
+    $DotNetCli = Find-DotNetCliPackagesFromCache
+    if ($DotNetCli) {
+        Resolve-DotNetCliPackagesCacheToRegistry -DotNetCliPackages $DotNetCli -RegistryPackages $Packages
+    }
+}
 
 return $Packages
