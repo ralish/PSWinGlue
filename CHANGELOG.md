@@ -1,6 +1,15 @@
 Changelog
 =========
 
+v0.6.11
+-------
+
+- `Get-Fonts`: Skip checking for missing fonts when none found in scope
+- `Install-Font`: Ensure global `$PSWinGluePackageCounter` is instantiated
+- `Install-Font`: Remove unnecessary `$PartCounter` and `$PartUriRaw` variables
+- `Install-Font`: Return an empty list from font enumeration if none found
+- `Install-Font`: Skip font hash checks if selected scope has no fonts
+
 v0.6.10
 -------
 
