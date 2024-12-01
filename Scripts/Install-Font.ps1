@@ -503,8 +503,12 @@ foreach ($Font in $InstalledFonts) {
 # Filter out any already installed fonts
 $InstallFonts = New-Object -TypeName 'Collections.Generic.List[IO.FileInfo]'
 foreach ($Font in $SourceFonts) {
-    $FontHash = Get-FileHash -Path $Font.FullName
+    if ($InstalledFonts.Count -eq 0) {
+        $InstallFonts.Add($Font)
+        continue
+    }
 
+    $FontHash = Get-FileHash -Path $Font.FullName
     if ($FontHash.Hash -notin $InstalledFonts.Hash) {
         $InstallFonts.Add($Font)
     } else {
