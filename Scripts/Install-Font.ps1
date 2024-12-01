@@ -357,9 +357,7 @@ Function New-FontMemoryPackage {
     [IO.Packaging.PackageStore]::AddPackage($PackageUri, $Package)
 
     # Create the package part for the font
-    $PartCounter++
-    $PartUriRaw = '/stream{0}' -f $PartCounter
-    $PartUri = New-Object -TypeName 'Uri' -ArgumentList ($PartUriRaw, [UriKind]::Relative)
+    $PartUri = New-Object -TypeName 'Uri' -ArgumentList ('/stream1', [UriKind]::Relative)
     $Part = $Package.CreatePart($PartUri, 'application/octet-stream')
 
     # Package URIs must be globally unique due to WPF caching
