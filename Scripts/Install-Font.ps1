@@ -348,8 +348,14 @@ Function New-FontMemoryPackage {
         Add-Type -AssemblyName 'WindowsBase' -ErrorAction Stop
     }
 
+    # WPF may perform caching on the package URI so we keep it unique
+    if (Get-Variable -Name 'PSWinGluePackageCounter' -Scope Global -ErrorAction Ignore) {
+        $global:PSWinGluePackageCounter++
+    } else {
+        $global:PSWinGluePackageCounter = 1
+    }
+
     # Create a memory-backed package for the font
-    $global:PSWinGluePackageCounter++
     $PackageUriRaw = 'payload://memorypackage{0}' -f $global:PSWinGluePackageCounter
     $PackageUri = New-Object -TypeName 'Uri' -ArgumentList ($PackageUriRaw, [UriKind]::Absolute)
     $PackageStream = New-Object -TypeName 'IO.MemoryStream'
