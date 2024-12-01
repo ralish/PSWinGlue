@@ -113,9 +113,11 @@ Function Get-Fonts {
         $FontsRegFileNames.Add($FontRegFileName)
     }
 
-    foreach ($FontFileName in $FontFiles.Name) {
-        if ($FontFileName -notin $FontsRegFileNames) {
-            Write-Warning -Message ('Font file not registered for {0}: {1}' -f $Scope.ToLower(), $FontFileName)
+    if ($FontFiles.Count -ne 0) {
+        foreach ($FontFileName in $FontFiles.Name) {
+            if ($FontFileName -notin $FontsRegFileNames) {
+                Write-Warning -Message ('Font file not registered for {0}: {1}' -f $Scope.ToLower(), $FontFileName)
+            }
         }
     }
 
