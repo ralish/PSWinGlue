@@ -91,9 +91,10 @@ $ValidExts = @('.otf', '.ttf')
 $ValidExtsRegex = '\.(otf|ttf)$'
 
 Function Get-Fonts {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseOutputTypeCorrectly', '')] # PSScriptAnalyzer bug?
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
     [CmdletBinding()]
-    [OutputType([PSCustomObject[]])]
+    [OutputType([Collections.Generic.List[PSCustomObject]])]
     Param(
         [ValidateSet('System', 'User')]
         [String]$Scope = 'System'
@@ -155,7 +156,7 @@ Function Get-Fonts {
         $FontsRegFileNames.Add($FontRegFileName)
     }
 
-    return $Fonts.ToArray()
+    return , $Fonts
 }
 
 Function Install-FontManual {
