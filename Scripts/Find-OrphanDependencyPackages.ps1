@@ -9,21 +9,21 @@
 
     Unfortunately, the package cache may in some cases maintain installers for removed applications, growing in size as old installers are accumulated. This is especially the case for dependency packages.
 
-    Visual Studio is an particularly prominent offender, as it relies on many MSIs which are frequently updated, but not always cleanly removed. The various .NET Core packages are the most common examples.
+    Visual Studio is a particularly prominent offender, as it relies on many MSIs which are frequently updated, but not always cleanly removed. The various .NET packages are the most common examples.
 
-    This function attempts to identify "orphaned" dependency packages, which after inspection can be removed using the Remove-OrphanDependencyPackages function. You use this function entirely at your own risk!
+    This function attempts to identify "orphaned" dependency packages, which after inspection can be removed using the Remove-OrphanDependencyPackages function. Use this function entirely at your own risk!
 
     .EXAMPLE
     Find-OrphanDependencyPackages
 
-    Analyzes the registry and file system for orphan dependency packages.
+    Analyzes the registry and package cache for orphan dependency packages.
 
     .NOTES
     There's no simple way to "clean" the package cache and associated registry data. The best that can be done is to try and determine if a package is unused and match registry data to a cached installer.
 
-    The general process is to inspect the registry data for each package, and given an absence of any metadata and a "Dependents" key with no sub-keys, it's fairly safe to assume it is an orphaned dependency.
+    The general process is to inspect the registry data for each package, and given the absence of any metadata and a "Dependents" key with no sub-keys, it's fairly safe to assume it is an orphaned dependency.
 
-    Matching a package to a cached installer is non-trivial, as there's no general way to make the match. This function is able to do so for various .NET Core packages due to the predictable naming scheme.
+    Matching a package to a cached installer is non-trivial, as there's no general way to make the match. This function is able to do so for various .NET packages due to their predictable naming scheme.
 
     .LINK
     https://github.com/ralish/PSWinGlue
@@ -52,7 +52,7 @@ $Script:DependenciesRegPath = Join-Path -Path $InstallerRegPath -ChildPath 'Depe
 
 # Known packages
 $Script:KnownPackages = @{
-    'dotnet_apphost_pack'                              = @{
+    'dotnet_apphost_pack' = @{
         Registry  = 'dotnet_apphost_pack_(\d+\.\d+\.\d+)_([a-z0-9_]+)'
         Directory = 'v$1'
         File      = '^dotnet-apphost-pack-.+-$2\.msi'
@@ -61,27 +61,28 @@ $Script:KnownPackages = @{
     # package cache. Instead, we have to find MSI files matching the below
     # pattern, then extract a record from them which we can use to match
     # against the correct registry key.
-    #'Dotnet_CLI'                                      = @{
+    <#
+    #'Dotnet_CLI' = @{
     #   Registry  = 'Dotnet_CLI_(\d+\.\d+\.\d+)\.\d+_([a-z0-9]+)'
     #   Directory = 'v\d+\.\d+\.\d+'
     #   File      = '^dotnet-sdk-internal-.+-$2\.msi'
-    #}
-    'Dotnet_CLI_HostFxr'                               = @{
+    #>
+    'Dotnet_CLI_HostFxr' = @{
         Registry  = 'Dotnet_CLI_HostFxr_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-hostfxr-.+-$2\.msi'
     }
-    'Dotnet_CLI_SharedHost'                            = @{
+    'Dotnet_CLI_SharedHost' = @{
         Registry  = 'Dotnet_CLI_SharedHost_(\d+\.\d+(\.\d+)?)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-host-.+-$2\.msi'
     }
-    'dotnet_runtime'                                   = @{
+    'dotnet_runtime' = @{
         Registry  = 'dotnet_runtime_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-runtime-.+-$2\.msi'
     }
-    'dotnet_targeting_pack'                            = @{
+    'dotnet_targeting_pack' = @{
         Registry  = 'dotnet_targeting_pack_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-targeting-pack-.+-$2\.msi'
@@ -91,33 +92,38 @@ $Script:KnownPackages = @{
         Directory = 'v\d+\.\d+\.\d+'
         File      = '^dotnet-runtime-$1-.+-$2\.msi'
     }
-    'Microsoft.AspNetCore.SharedFramework'             = @{
+    'Microsoft.AspNetCore.SharedFramework' = @{
         Registry  = 'Microsoft\.AspNetCore\.SharedFramework_([a-z0-9]+)_.+,v(\d+\.\d+\.\d+)'
         Directory = 'v$2'
         File      = '^AspNetCoreSharedFramework-$1\.msi'
     }
-    'Microsoft.AspNetCore.TargetingPack'               = @{
+    'Microsoft.AspNetCore.TargetingPack' = @{
         Registry  = 'Microsoft\.AspNetCore\.TargetingPack_([a-z0-9]+)_.+,v(\d+\.\d+\.\d+)'
         Directory = 'v$2'
         File      = '^aspnetcore-targeting-pack-$2-.+-$1\.msi'
     }
-    'NetCore_Templates'                                = @{
+    'NetCore_Templates' = @{
         Registry  = 'NetCore_Templates_\d+\.\d+_(\d+\.\d+\.\d+).*_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^dotnet-\d+templates-.+-$2\.msi'
     }
-    'windowsdesktop_runtime'                           = @{
+    'windowsdesktop_runtime' = @{
         Registry  = 'windowsdesktop_runtime_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^windowsdesktop-runtime-.+-$2\.msi'
     }
-    'windowsdesktop_targeting_pack'                    = @{
+    'windowsdesktop_targeting_pack' = @{
         Registry  = 'windowsdesktop_targeting_pack_(\d+\.\d+\.\d+)_([a-z0-9]+)'
         Directory = 'v$1'
         File      = '^windowsdesktop-targeting-pack-.+-$2\.msi'
     }
 }
 
+<#
+    Retrieves all Dotnet_CLI packages from known package caches. For each MSI,
+    extract the value of the ProviderKey record from the WixDependencyProvider
+    table, which corresponds to the MSI package name used in the registry.
+#>
 Function Find-DotNetCliPackagesFromCache {
     [CmdletBinding()]
     [OutputType([Object[]])]
@@ -156,8 +162,7 @@ Function Find-DotNetCliPackagesFromCache {
             $MsiDatabase = $Msi.GetType().InvokeMember('OpenDatabase', 'InvokeMethod', $null, $Msi, $MsiOpenDatabaseParams)
 
             # Retrieve all records from the WixDependencyProvider table. Only a
-            # subset of SQL is supported and the "LIKE" clause is unfortunately
-            # not included.
+            # subset of SQL is supported and the "LIKE" clause isn't included.
             $MsiView = $Msi.GetType().InvokeMember('OpenView', 'InvokeMethod', $null, $MsiDatabase, $MsiOpenViewQuery)
             $null = $MsiView.GetType().InvokeMember('Execute', 'InvokeMethod', $null, $MsiView, $null)
 
@@ -185,6 +190,10 @@ Function Find-DotNetCliPackagesFromCache {
     return ($Results.ToArray() | Sort-Object -Property Name)
 }
 
+<#
+    Retrieves all MSI dependency packages from the registry and filters out
+    those which have dependents (are depended on by other packages).
+#>
 Function Find-OrphanDependenciesFromRegistry {
     [CmdletBinding()]
     [OutputType([Object[]])]
@@ -249,6 +258,9 @@ Function Find-OrphanDependenciesFromRegistry {
     return ($Results.ToArray() | Sort-Object -Property Name)
 }
 
+<#
+    Resolves retrieved DotNet_CLI MSI packages to the equivalent registry key.
+#>
 Function Resolve-DotNetCliPackagesCacheToRegistry {
     [CmdletBinding()]
     [OutputType([Void])]
@@ -277,6 +289,10 @@ Function Resolve-DotNetCliPackagesCacheToRegistry {
     }
 }
 
+<#
+    Resolves retrieved orphaned MSI dependency packages from the registry to
+    cached packages on the file system for known packages.
+#>
 Function Resolve-OrphanDependenciesRegistryToCache {
     [CmdletBinding()]
     [OutputType([Void])]
