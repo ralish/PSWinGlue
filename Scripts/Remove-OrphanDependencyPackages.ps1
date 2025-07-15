@@ -13,6 +13,14 @@
 
     This function can uninstall "orphaned" dependency packages and remove cached installers, as identified by the Find-OrphanDependencyPackages function. You use this function entirely at your own risk!
 
+    .PARAMETER Packages
+    The orphaned packages to be removed as emitted by Find-OrphanDependencyPackages.
+
+    Packages are filtered to only remove those meeting all of the following criteria:
+    - Status is "Orphaned"
+    - Has a single cached installer file or none
+    - If a single cached installer file is present it is an MSI
+
     .EXAMPLE
     $Packages = Find-OrphanDependencyPackages
     Remove-OrphanDependencyPackages -Packages $Packages
