@@ -75,22 +75,22 @@ $WinEventParams = @{
     ErrorAction     = 'Stop'
 }
 
-$Events = [Collections.Generic.List[Diagnostics.Eventing.Reader.EventRecord]]@(Get-WinEvent @WinEventParams)
+$WinEvents = [Collections.Generic.List[Diagnostics.Eventing.Reader.EventRecord]]@(Get-WinEvent @WinEventParams)
 
 if ($IgnoredTasks) {
     $FilteredEvents = New-Object -TypeName 'Collections.Generic.List[Diagnostics.Eventing.Reader.EventRecord]'
 
-    foreach ($Event in $Events) {
-        $EventXml = [Xml]$Event.ToXml()
+    foreach ($WinEvent in $WinEvents) {
+        $EventXml = [Xml]$WinEvent.ToXml()
         $EventData = $EventXml.Event.EventData.Data
         $TaskName = $EventData | Where-Object Name -EQ 'TaskName'
 
         if ($TaskName -notin $IgnoredTasks) {
-            $FilteredEvents.Add($Event)
+            $FilteredEvents.Add($WinEvent)
         }
     }
 
-    $Events = $FilteredEvents
+    $WinEvents = $FilteredEvents
 }
 
-return $Events.ToArray()
+return $WinEvents.ToArray()
