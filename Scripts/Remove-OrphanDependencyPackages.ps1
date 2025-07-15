@@ -22,8 +22,7 @@
     - If a single cached installer file is present it is an MSI
 
     .EXAMPLE
-    $Packages = Find-OrphanDependencyPackages
-    Remove-OrphanDependencyPackages -Packages $Packages
+    Find-OrphanDependencyPackages | Remove-OrphanDependencyPackages
 
     Removes orphan dependency packages found by Find-OrphanDependencyPackages.
 
@@ -45,112 +44,72 @@
 [CmdletBinding(SupportsShouldProcess)]
 [OutputType([Void])]
 Param(
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory, ValueFromPipeline)]
     [PSCustomObject[]]$Packages
 )
 
-$PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
-if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
-    throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
-}
-
-Function Test-IsAdministrator {
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    Param()
+Begin {
+    $PowerShellCore = New-Object -TypeName Version -ArgumentList 6, 0
+    if ($PSVersionTable.PSVersion -ge $PowerShellCore -and $PSVersionTable.Platform -ne 'Win32NT') {
+        throw '{0} is only compatible with Windows.' -f $MyInvocation.MyCommand.Name
+    }
 
     $User = [Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
-    if ($User.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-        return $true
+    if (!($User.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))) {
+        throw '{0} requires Administrator privileges.' -f $MyInvocation.MyCommand.Name
     }
-
-    return $false
 }
 
-Function Test-PackageObjectProperties {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '')]
-    [CmdletBinding()]
-    [OutputType([Boolean])]
-    Param(
-        [Parameter(Mandatory)]
-        [PSCustomObject]$Package
-    )
-
-    $ExpectedProperties = 'Name', 'Status', 'RegKey', 'CacheStatus', 'CacheFiles'
-    foreach ($Property in $ExpectedProperties) {
-        if ($Package.PSObject.Properties.Name -notcontains $Property) {
-            throw 'Encounted a package with a missing required property: {0}' -f $Property
+Process {
+    foreach ($Package in $Packages) {
+        $ExpectedProperties = 'Name', 'Status', 'RegKey', 'CacheStatus', 'CacheFiles'
+        foreach ($Property in $ExpectedProperties) {
+            if ($Package.PSObject.Properties.Name -notcontains $Property) {
+                throw 'Encounted a package with a missing required property: {0}' -f $Property
+            }
         }
-    }
 
-    if ($Package.Status -ne 'Orphaned') {
-        return $false
-    }
-
-    if ($Package.CacheFiles.Count -gt 1) {
-        Write-Warning -Message ('[{0}] Skipping package with multiple files.' -f $Package.Name)
-        return $false
-    }
-
-    # Remaining checks don't apply
-    if ($Package.CacheFiles.Count -eq 0) {
-        return $true
-    }
-
-    if (!$Package.CacheFiles[0].Name.EndsWith('.msi')) {
-        Write-Error -Message ('[{0}] Skipping package without MSI installer.' -f $Package.Name)
-        return $false
-    }
-
-    return $true
-}
-
-if (!(Test-IsAdministrator) -and !$WhatIfPreference) {
-    throw '{0} requires Administrator privileges.' -f $MyInvocation.MyCommand.Name
-}
-
-$MaxPackageNameSize = 0
-foreach ($Package in $Packages) {
-    if ($Package.Name.Length -gt $MaxPackageNameSize) {
-        $MaxPackageNameSize = $Package.Name.Length
-    }
-}
-# Negative for left justification and -2 to account for added brackets
-$MaxPackageNameSize = ($MaxPackageNameSize / -1) - 2
-
-foreach ($Package in $Packages) {
-    if (!(Test-PackageObjectProperties -Package $Package)) {
-        continue
-    }
-
-    $PackageNameBracketed = '[{0}]' -f $Package.Name
-    $PackageOutputPrefix = "{0,$MaxPackageNameSize}" -f $PackageNameBracketed
-    Write-Verbose -Message ('{0} Processing package ...' -f $PackageOutputPrefix)
-
-    if ($Package.CacheFiles.Count -eq 1) {
-        $MsiexecParams = @(
-            '/u'
-            ('"{0}"' -f $Package.CacheFiles[0].FullName)
-            '/passive'
-        )
-
-        Start-Process -FilePath 'msiexec.exe' -ArgumentList $MsiexecParams -Wait
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning -Message ('{0} Uninstall returned exit code: {1}' -f $PackageOutputPrefix, $LASTEXITCODE)
+        if ($Package.Status -ne 'Orphaned') {
             continue
         }
 
-        Remove-Item -LiteralPath $Package.CacheFiles[0].Directory -Recurse
-    }
+        if ($Package.CacheFiles.Count -gt 1) {
+            Write-Warning -Message ('[{0}] Skipping package with multiple files.' -f $Package.Name)
+            continue
+        }
 
-    # Calling Remove-Item with -WhatIf on a registry key which will require
-    # Administrator privileges to remove won't bypass the permissions check.
-    # Simulate what would be returned if we did have required privileges so an
-    # unhelpful "Requested registry access is not allowed." error is not shown.
-    if ($WhatIfPreference) {
-        $Key = Get-Item -LiteralPath $Package.RegKey
-        Write-Host -Object ('What if: Performing the operation "Remove Key" on target "Item: {0}".' -f $Key.Name)
-    } else {
-        Remove-Item -LiteralPath $Package.RegKey -Recurse
+        if ($Package.CacheFiles.Count -eq 1 -and !$Package.CacheFiles[0].Name.EndsWith('.msi')) {
+            Write-Error -Message ('[{0}] Skipping package without MSI installer.' -f $Package.Name)
+            continue
+        }
+
+        Write-Verbose -Message ('Processing: {0}' -f $Package.Name)
+
+        if ($Package.CacheFiles.Count -eq 1) {
+            $MsiexecParams = @(
+                '/u'
+                ('"{0}"' -f $Package.CacheFiles[0].FullName)
+                '/passive'
+            )
+
+            Start-Process -FilePath 'msiexec.exe' -ArgumentList $MsiexecParams -Wait
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning -Message ('Uninstall of {0} returned exit code: {1}' -f $Package.Name, $LASTEXITCODE)
+                continue
+            }
+
+            Remove-Item -LiteralPath $Package.CacheFiles[0].Directory -Recurse
+        }
+
+        # Calling Remove-Item with -WhatIf on a registry key which will require
+        # Administrator privileges to remove won't bypass the permission check.
+        # Simulate what would be returned if we had required privileges so a
+        # "Requested registry access is not allowed." error is not shown.
+        if ($WhatIfPreference) {
+            $Key = Get-Item -LiteralPath $Package.RegKey
+            Write-Host -Object ('What if: Performing the operation "Remove Key" on target "Item: {0}".' -f $Key.Name)
+        } else {
+            Remove-Item -LiteralPath $Package.RegKey -Recurse
+        }
     }
 }
