@@ -33,8 +33,6 @@ Param(
     [String]$Path
 )
 
-$RegSignature = 'Windows Registry Editor'
-
 try {
     $RegFile = Get-Item -Path $Path -ErrorAction Stop
 } catch {
@@ -45,70 +43,148 @@ if ($RegFile -isnot [IO.FileInfo]) {
     throw 'Expected a file but received: {0}' -f $RegFile.GetType().Name
 }
 
-$RegFileSig = Get-Content -Path $RegFile -TotalCount 1
-if ($RegFileSig -notmatch "^$RegSignature") {
-    throw 'File does not begin with expected "{0}" signature: {1}' -f $RegSignature, $RegFile.Name
+# Expected registry export file header
+$FileHeader = 'Windows Registry Editor Version 5.00'
+$RegexFileHeader = '^{0}$' -f [Regex]::Escape($FileHeader)
+
+$RegFileHeader = Get-Content -Path $RegFile -TotalCount 1
+if ($RegFileHeader -notmatch $RegexFileHeader) {
+    throw 'File does not begin with expected "{0}" header: {1}' -f $FileHeader, $RegFile.Name
 }
 
-# Everything looks good so retrieve the complete file content
-$RegFileContent = Get-Content -Path $RegFile
+# Comment line
+$RegexComment = '^\s*(;.*)\s*$'
+# Registry section
+#
+# Registry key names can include square brackets. They're not escaped, but
+# there's no other content apart from the enclosing square brackets.
+$RegexSection = '^\s*(\[.+\])\s*$'
+# Registry value
+#
+# Registry values are always quoted, except for the unnamed (default) value,
+# which if set is denoted by an "@" symbol.
+$RegexValue = '^\s*[@"]'
+# Named registry value
+#
+# Registry value names can include double quotes and backslashes, both of which
+# are escaped. The match group excludes the enclosing double quotes.
+$RegexNamedValue = '^\s*"((?:[^"\\]|\\.)+)"'
+# Multi-line registry value data
+#
+# Some registry value data may span multiple lines (e.g. REG_BINARY values),
+# which is denoted by a single trailing backslash.
+$RegexMultilineValue = '\\\s*$'
 
-# List to hold the new file content starting with the signature
-$RegNewContent = New-Object -TypeName 'Collections.Generic.List[String]'
-$RegNewContent.Add($RegFileContent[0])
+$FileContent = Get-Content -Path $Path -ErrorAction Stop
+$SortedContent = New-Object -TypeName 'Collections.Generic.List[String]'
 
-# List holding entries for the current registry key (INI section)
-$RegKeyContent = New-Object -TypeName 'Collections.Generic.List[String]'
+$SectionName = [String]::Empty
+$SectionContent = New-Object -TypeName 'Collections.Generic.Dictionary[String, String]'
 
-for ($Idx = 1; $Idx -lt $RegFileContent.Count; $Idx++) {
-    $Line = $RegFileContent[$Idx]
+$RegComment = New-Object -TypeName 'Collections.Generic.List[String]'
+$RegValue = New-Object -TypeName 'Collections.Generic.List[String]'
 
-    # Blank line (ignored)
-    if ([String]::IsNullOrWhiteSpace($Line)) {
+# Add the registry file header
+$SortedContent.Add($RegFileHeader)
+
+# Add any comments preceding the first section
+for ($Idx = 1; $Idx -lt $FileContent.Count; $Idx++) {
+    $Line = $FileContent[$Idx]
+
+    if ($Line -notmatch $RegexSection) {
+        $SortedContent.Add($Line)
         continue
     }
 
-    # Registry key
-    if ($Line -match '^\[') {
-        # Sort and append entries from the previous registry key
-        if ($RegKeyContent.Count -ne 0) {
-            $RegKeyContent.Sort()
-            foreach ($Entry in $RegKeyContent) {
-                $RegNewContent.Add($Entry)
-            }
+    $FirstSectionIdx = $Idx
+    break
+}
 
-            $RegKeyContent.Clear()
+# Process each registry section
+for ($Idx = $FirstSectionIdx; $Idx -lt $FileContent.Count; $Idx++) {
+    $Line = $FileContent[$Idx]
+
+    # Skip blank lines
+    if ([String]::IsNullOrWhiteSpace($Line)) { continue }
+
+    # Registry comment
+    if ($Line -match $RegexComment) {
+        if ($RegComment.Count -gt 0) {
+            $RegComment += '{0}{1}' -f [Environment]::NewLine, $Matches[1]
+        } else {
+            $RegComment = $Matches[1]
         }
 
-        $RegNewContent.Add([String]::Empty)
-        $RegNewContent.Add($Line)
         continue
     }
 
-    # Registry value
-    if ($Line -match '^[@"]') {
-        # Handle values where the data is split over multiple lines
-        if ($Line -match '\\$') {
+    # Registry section (key path)
+    if ($Line -match $RegexSection) {
+        $SectionName = $Matches[1]
+
+        # Add any comments preceding the section
+        if ($RegComment) {
+            $SortedContent.Add($RegComment)
+            $RegComment = [String]::Empty
+        }
+
+        # Add registry values for the section
+        foreach ($ValueName in ($SectionContent.Keys | Sort-Object)) {
+            $SortedContent.Add($SectionContent[$ValueName])
+        }
+        $SectionContent.Clear()
+
+        if ($Idx -ne $FirstSectionIdx) {
+            $SortedContent.Add([String]::Empty)
+        }
+
+        # Add the start of the new section
+        $SortedContent.Add($SectionName)
+        continue
+    }
+
+    # Registry value (name, type, data)
+    if ($Line -match $RegexValue) {
+        if ($Line -match $RegexNamedValue) {
+            $ValueName = $Matches[1]
+        } else {
+            $ValueName = '@'
+        }
+
+        $RegValue = $Line
+
+        # Add any comments preceding the value
+        if ($RegComment) {
+            $RegValue = '{0}{1}{2}' -f $RegComment, [Environment]::NewLine, $RegValue
+            $RegComment = [String]::Empty
+        }
+
+        # Is the value data multi-line?
+        if ($Line -match $RegexMultilineValue) {
             do {
                 $Idx++
-                $ExtraLine = $RegFileContent[$Idx]
-                $Line += '{0}{1}' -f [Environment]::NewLine, $ExtraLine
-            } while ($ExtraLine -match '\\$')
+                $ExtraLine = $FileContent[$Idx]
+                $RegValue += '{0}{1}' -f [Environment]::NewLine, $ExtraLine
+            } while ($ExtraLine -match '\\\s*$')
         }
 
-        $RegKeyContent.Add($Line)
+        $SectionContent.Add($ValueName, $RegValue)
         continue
     }
 
-    throw 'Unexpected content on line {0} sorting registry file: {1}' -f ($Idx + 1), $RegFile.Name
+    throw 'Unexpected content on line {0}: {1}' -f ($Idx + 1), $Line
 }
 
-# Add any values from the final registry key
-if ($RegKeyContent.Count -ne 0) {
-    $RegKeyContent.Sort()
-    foreach ($Entry in $RegKeyContent) {
-        $RegNewContent.Add($Entry)
-    }
+# Add registry values for the final section
+foreach ($ValueName in ($SectionContent.Keys | Sort-Object)) {
+    $SortedContent.Add($SectionContent[$ValueName])
 }
 
-Set-Content -Path $RegFile -Value $RegNewContent
+# Add any trailing comments
+if ($RegComment) {
+    $SortedContent.Add($RegComment)
+    $RegComment = [String]::Empty
+}
+
+# Registry exports are UTF16-LE encoded
+Set-Content -Path $RegFile -Value $SortedContent -Encoding 'unicode'
