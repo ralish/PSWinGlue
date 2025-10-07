@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.6.12
+-------
+
+- `Get-TaskSchedulerEvent`: Don't redefine `$Event` built-in
+- `Remove-OrphanDependencyPackages`: Add pipelining support & documentation improvements
+- `Sort-RegistryExport`: Overhaul implementation & preserve comment ordering
+
 v0.6.11
 -------
 
